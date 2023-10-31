@@ -24,7 +24,6 @@ class NewsViewSet(viewsets.ModelViewSet):
     )
     def get(self, request, *args, **kwargs):
         """
-            Возвращает список всех новостей.
+        Возвращает список всех новостей.
         """
         return super().get(request, *args, **kwargs)
-
