@@ -1,1 +1,1 @@
-python3 manage.py parse_news
+python3 .\news_portal\news_portal\ manage.py parse_news
