@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://www.simpleitnews.tech/','localhost','82.180.160.12']
 
 
 # Application definition
@@ -28,12 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'news',
     'drf_yasg',
     'rest_framework',
     'rest_framework_swagger',
-    'drf_spectacular',
-    'news',
+    'drf_spectacular'
+
 ]
 
 MIDDLEWARE = [
