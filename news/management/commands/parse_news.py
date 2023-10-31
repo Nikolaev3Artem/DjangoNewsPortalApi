@@ -11,16 +11,27 @@ class Command(BaseCommand):
             data = response.json()
             for news in data['results']:
                 try:
-                    News.objects.create(
-                        title = news['title'], 
-                        author = news['creator'],
-                        link = news['link'],
-                        image_url = news['image_url'],
-                        pub_date = news['pubDate'],
-                        description = news['description'],
-                        country = news['country'],
-                        content = news['content']
-                    )
+                    if news['creator']:
+                        News.objects.create(
+                            title = news['title'], 
+                            author = news['creator'],
+                            link = news['link'],
+                            image_url = news['image_url'],
+                            pub_date = news['pubDate'],
+                            description = news['description'],
+                            country = news['country'],
+                            content = news['content']
+                        )
+                    else:
+                        News.objects.create(
+                            title = news['title'], 
+                            link = news['link'],
+                            image_url = news['image_url'],
+                            pub_date = news['pubDate'],
+                            description = news['description'],
+                            country = news['country'],
+                            content = news['content']
+                        )
                 except Exception as e:
                     print(e)
                     continue
