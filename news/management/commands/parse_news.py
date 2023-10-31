@@ -17,7 +17,6 @@ class Command(BaseCommand):
                 print(news)
                 try:
                     News.objects.create(
-                        news_id = news['article_id'], 
                         title = news['title'], 
                         author = news['creator'],
                         link = news['link'],
