@@ -8,12 +8,12 @@ from rest_framework.permissions import IsAuthenticated
 
 class NewsViewSet(viewsets.ModelViewSet):
     """
-    API endpoint для просмотра списка новостей.
+    API endpoint для просмотра списка всех новостей.
 
     GET:
         Возвращает список всех новостей.
     """
-    queryset = News.objects.all().filter(IsAproved=True)
+    queryset = News.objects.all()
     serializer_class = NewsSerializer
     http_method_names = ['get']
     @swagger_auto_schema(
@@ -28,5 +28,30 @@ class NewsViewSet(viewsets.ModelViewSet):
     def get(self, request, *args, **kwargs):
         """
             Возвращает список всех новостей.
+        """
+        return super().get(request, *args, **kwargs)
+
+class ApprovedNewsViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint для просмотра списка всех новостей которые подтвердженные админом.
+
+    GET:
+        Возвращает список всех новостей подтвержденных админом.
+    """
+    queryset = News.objects.all().filter(IsAproved=True)
+    serializer_class = NewsSerializer
+    http_method_names = ['get']
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список новостей подтвержденных админом'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список новостей',
+        operation_description='Возвращает список всех новостей подтвержденных админом.',
+        tags=['Новости'],
+    )
+    def get(self, request, *args, **kwargs):
+        """
+            Возвращает список всех новостей подтвержденных админом.
         """
         return super().get(request, *args, **kwargs)

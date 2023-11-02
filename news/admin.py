@@ -1,5 +1,5 @@
 from django.contrib import admin
-from news.models import News, NewsAdmin
+from .models import News, NewsAdmin
 
 
 
