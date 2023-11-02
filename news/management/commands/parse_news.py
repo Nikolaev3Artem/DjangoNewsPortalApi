@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from . import *
 from news.models import News
 class Command(BaseCommand):
-    help = 'The Zen of Python'
+    help = 'Parsing news from newsdata.io'
 
     def handle(self, *args, **options):
         try:
@@ -10,31 +10,34 @@ class Command(BaseCommand):
             response = requests.get(url)
             data = response.json()
             for news in data['results']:
-                try:
-                    if news['creator']:
-                        News.objects.create(
-                            title = news['title'], 
-                            author = news['creator'],
-                            link = news['link'],
-                            image_url = news['image_url'],
-                            pub_date = news['pubDate'],
-                            description = news['description'],
-                            country = news['country'],
-                            content = news['content']
-                        )
-                    else:
-                        News.objects.create(
-                            title = news['title'], 
-                            link = news['link'],
-                            image_url = news['image_url'],
-                            pub_date = news['pubDate'],
-                            description = news['description'],
-                            country = news['country'],
-                            content = news['content']
-                        )
-                except Exception as e:
-                    print(e)
-                    continue
+                if news != "message":
+                    try:
+                        if news['creator']:
+                            News.objects.create(
+                                title = news['title'], 
+                                author = news['creator'],
+                                link = news['link'],
+                                image_url = news['image_url'],
+                                pub_date = news['pubDate'],
+                                description = news['description'],
+                                country = news['country'],
+                                content = news['content']
+                            )
+                        else:
+                            News.objects.create(
+                                title = news['title'], 
+                                link = news['link'],
+                                image_url = news['image_url'],
+                                pub_date = news['pubDate'],
+                                description = news['description'],
+                                country = news['country'],
+                                content = news['content']
+                            )
+                    except Exception as e:
+                        print(e)
+                        continue
+                else:
+                    print(data)
             print('All done news are parsed!')
         except Exception as e:
             print(f'Error: {e}')

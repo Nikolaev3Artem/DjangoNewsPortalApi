@@ -3,6 +3,9 @@ from .serializers import NewsSerializer
 from .models import News
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+
+from rest_framework.permissions import IsAuthenticated
+
 class NewsViewSet(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка новостей.
@@ -10,7 +13,7 @@ class NewsViewSet(viewsets.ModelViewSet):
     GET:
         Возвращает список всех новостей.
     """
-    queryset = News.objects.all()
+    queryset = News.objects.all().filter(IsAproved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get']
     @swagger_auto_schema(
@@ -24,6 +27,6 @@ class NewsViewSet(viewsets.ModelViewSet):
     )
     def get(self, request, *args, **kwargs):
         """
-        Возвращает список всех новостей.
+            Возвращает список всех новостей.
         """
         return super().get(request, *args, **kwargs)
