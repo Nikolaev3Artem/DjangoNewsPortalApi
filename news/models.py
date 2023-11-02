@@ -1,5 +1,4 @@
 from django.db import models
-from admin_extra_buttons.api import button, confirm_action
 from django.contrib import admin
 
 # Create your models here.
