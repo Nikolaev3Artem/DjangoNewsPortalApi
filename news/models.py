@@ -13,7 +13,7 @@ class News(models.Model):
     country = models.CharField(max_length=50, null=True)
     content = models.CharField(max_length=1000, null=True)
     IsAproved = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return self.title
 
@@ -22,10 +22,14 @@ class News(models.Model):
         verbose_name_plural = "News"
 
 @admin.action(description="Publish post")
-def make_published(modeladmin, request, queryset):
+def publish_post(modeladmin, request, queryset):
     queryset.update(IsAproved=True)
+
+@admin.action(description="Delete post")
+def delete_post(modeladmin, request, queryset):
+    queryset.delete()
 
 class NewsAdmin(admin.ModelAdmin):
     list_display = ["title", 'country', "IsAproved"]
     ordering = ["IsAproved"]
-    actions = [make_published]
+    actions = [publish_post, delete_post]

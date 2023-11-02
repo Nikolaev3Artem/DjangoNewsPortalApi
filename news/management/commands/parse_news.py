@@ -6,7 +6,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            url = f'https://newsdata.io/api/1/news?apikey={api_key}&category=technology'
+            url = f'https://newsdata.io/api/1/news?apikey={api_key}&category=technology&language=en'
             response = requests.get(url)
             data = response.json()
             for news in data['results']:
