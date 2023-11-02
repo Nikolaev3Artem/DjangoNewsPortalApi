@@ -14,13 +14,6 @@ class News(models.Model):
     content = models.CharField(max_length=1000, null=True)
     IsAproved = models.BooleanField(default=False)
     
-    @button(html_attrs={'style': 'background-color:#DC6C6C;color:red'})
-    def confirm(self, request):
-        def _action(request):
-            IsAproved = True
-
-        return confirm_action(self, request, _action, "Confirm action",
-                          "Successfully executed", )
     def __str__(self):
         return self.title
 
