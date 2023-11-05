@@ -38,6 +38,5 @@ class Command(BaseCommand):
                         continue
                 else:
                     print(data)
-            print('All done news are parsed!')
         except Exception as e:
             print(f'Error: {e}')
