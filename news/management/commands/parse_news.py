@@ -40,24 +40,24 @@ class Command(BaseCommand):
                         text_translate = translate_text([title, description, content])
                         if news['creator']: 
                             News.objects.create(
-                                title = text_translate[0], 
+                                title = text_translate['key_1'], 
                                 author = news['creator'],
                                 link = news['link'],
                                 image_url = news['image_url'],
                                 pub_date = news['pubDate'],
-                                description = text_translate[1],
+                                description = text_translate['key_2'],
                                 country = news['country'],
-                                content = text_translate[2]
+                                content = text_translate['key_3']
                             )
                         else:
                             News.objects.create(
-                                title = text_translate[0], 
+                                title = text_translate['key_1'], 
                                 link = news['link'],
                                 image_url = news['image_url'],
                                 pub_date = news['pubDate'],
-                                description = text_translate[1],
+                                description = text_translate['key_2'],
                                 country = news['country'],
-                                content = text_translate[2]
+                                content = text_translate['key_3']
                             )
                     except Exception as e:
                         print(e)
