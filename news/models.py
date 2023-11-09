@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib import admin
+from . import *
 
 # Create your models here.
 class News(models.Model):
@@ -21,9 +22,35 @@ class News(models.Model):
         verbose_name = "News"
         verbose_name_plural = "News"
 
-@admin.action(description="Publish post")
+def translate_text(data):
+    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
+
+    querystring = {"text":f"{data[0]} | {data[1]} | {data[2]} |","to":"uk","from":"en"}
+
+    headers = {
+        "X-RapidAPI-Key": os.getenv('TRANSLATE_API_KEY'),
+        "X-RapidAPI-Host": os.getenv('TRANSLATE_API_HOST')
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+
+    result = {}
+    temp_word = ""
+    k = 0
+    for i in response.json()['translated_text']['uk']:
+        if i == "|":
+            k+=1
+            result[f'key_{k}'] = temp_word
+            temp_word = ""
+            continue
+        temp_word += i
+    return result
+
+
+@admin.action(description="Publish and translate post")
 def publish_post(modeladmin, request, queryset):
-    queryset.update(IsAproved=True)
+    translate = translate_text([queryset.get().title, queryset.get().description, queryset.get().content])
+    queryset.update(IsAproved=True, title=translate['key_1'], description=translate['key_2'],content=translate['key_3'])
 
 @admin.action(description="Delete post")
 def delete_post(modeladmin, request, queryset):

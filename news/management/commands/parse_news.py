@@ -3,29 +3,6 @@ from . import *
 from news.models import News
 import requests
 
-def translate_text(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-
-    querystring = {"text":f"{data[0]} | {data[1]} | {data[2]} |","to":"uk","from":"en"}
-
-    headers = {
-        "X-RapidAPI-Key": TRANSLATE_API_KEY,
-        "X-RapidAPI-Host": TRANSLATE_API_HOST
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-
-    result = {}
-    temp_word = ""
-    k = 0
-    for i in response.json()['translated_text']['uk']:
-        if i == "|":
-            k+=1
-            result[f'key_{k}'] = temp_word
-            temp_word = ""
-            continue
-        temp_word += i
-    return result
 class Command(BaseCommand):
     help = 'Parsing news from newsdata.io'
 
@@ -37,27 +14,26 @@ class Command(BaseCommand):
             for news in data['results']:
                 if news != "message":
                     try:
-                        text_translate = translate_text([news['title'], news['description'], news['content']])
                         if news['creator']: 
                             News.objects.create(
-                                title = text_translate['key_1'], 
+                                title = news['title'], 
                                 author = news['creator'],
                                 link = news['link'],
                                 image_url = news['image_url'],
                                 pub_date = news['pubDate'],
-                                description = text_translate['key_2'],
+                                description = news['description'],
                                 country = news['country'],
-                                content = text_translate['key_3']
+                                content = news['content']
                             )
                         else:
                             News.objects.create(
-                                title = text_translate['key_1'], 
+                                title = news['title'], 
                                 link = news['link'],
                                 image_url = news['image_url'],
                                 pub_date = news['pubDate'],
-                                description = text_translate['key_2'],
+                                description = news['description'],
                                 country = news['country'],
-                                content = text_translate['key_3']
+                                content = news['content']
                             )
                     except Exception as e:
                         print(e)
