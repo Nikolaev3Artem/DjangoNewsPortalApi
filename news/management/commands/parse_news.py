@@ -37,7 +37,7 @@ class Command(BaseCommand):
             for news in data['results']:
                 if news != "message":
                     try:
-                        text_translate = translate_text([title, description, content])
+                        text_translate = translate_text([news['title'], news['description'], news['content']])
                         if news['creator']: 
                             News.objects.create(
                                 title = text_translate['key_1'], 
