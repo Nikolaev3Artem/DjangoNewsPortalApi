@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://www.simpleitnews.tech/','localhost','82.180.160.12','127.0.0.1','nlp-translation.p.rapidapi.com']
+ALLOWED_HOSTS = ['https://www.simpleitnews.tech/','localhost','82.180.160.12','127.0.0.1']
 
 
 # Application definition

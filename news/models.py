@@ -27,10 +27,7 @@ def translate_text(data):
 
     querystring = {"text":f"{data[0]} | {data[1]} | {data[2]} |","to":"uk","from":"en"}
 
-    headers = {
-        "X-RapidAPI-Key": os.getenv('TRANSLATE_API_KEY'),
-        "X-RapidAPI-Host": os.getenv('TRANSLATE_API_HOST')
-    }
+    headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db","X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
 
     response = requests.get(url, headers=headers, params=querystring)
 
