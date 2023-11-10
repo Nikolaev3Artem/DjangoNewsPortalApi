@@ -25,7 +25,7 @@ class News(models.Model):
 def translate_text(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
 
-    querystring = {"text":f"{data[0]} | {data[1]} | {data[2]} |","to":"uk","from":"en"}
+    querystring = {"text":f"{data[0]} | {data[2]} |","to":"uk","from":"en"}
 
     headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db","X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
 
@@ -46,8 +46,8 @@ def translate_text(data):
 
 @admin.action(description="Publish and translate post")
 def publish_post(modeladmin, request, queryset):
-    translate = translate_text([queryset.get().title, queryset.get().description, queryset.get().content])
-    queryset.update(IsAproved=True, title=translate['key_1'], description=translate['key_2'],content=translate['key_3'])
+    translate = translate_text([queryset.get().title, queryset.get().content])
+    queryset.update(IsAproved=True, title=translate['key_1'],content=translate['key_3'])
 
 @admin.action(description="Delete post")
 def delete_post(modeladmin, request, queryset):
