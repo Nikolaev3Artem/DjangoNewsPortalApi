@@ -25,7 +25,7 @@ class News(models.Model):
 def translate_text(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
 
-    querystring = {"text":f"{data[0]} | {data[2]} |","to":"uk","from":"en"}
+    querystring = {"text":f"{data[0]} | {data[1]} |","to":"uk","from":"en"}
 
     headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db","X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
 
