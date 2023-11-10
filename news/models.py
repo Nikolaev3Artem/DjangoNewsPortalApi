@@ -47,7 +47,7 @@ def translate_text(data):
 @admin.action(description="Publish and translate post")
 def publish_post(modeladmin, request, queryset):
     translate = translate_text([queryset.get().title, queryset.get().content])
-    queryset.update(IsAproved=True, title=translate['key_1'],content=translate['key_3'])
+    queryset.update(IsAproved=True, title=translate['key_1'],content=translate['key_2'])
 
 @admin.action(description="Delete post")
 def delete_post(modeladmin, request, queryset):
