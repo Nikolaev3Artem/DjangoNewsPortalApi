@@ -13,7 +13,7 @@ class News(models.Model):
     pub_date =  models.CharField(max_length=100, null=True)
     country = models.CharField(max_length=50, null=True)
     content = models.CharField(max_length=1800, null=True)
-    custom_url = models.CharField(max_length=50, default='none', unique=True)
+    custom_url = models.CharField(max_length=50,default=None, unique=True,null=True, blank=True)
     IsAproved = models.BooleanField(default=False)
 
     def __str__(self):

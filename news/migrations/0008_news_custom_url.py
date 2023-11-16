@@ -2,6 +2,12 @@
 
 from django.db import migrations, models
 
+   
+def migrate_old_data(apps, schema_editor):
+    News = apps.get_model('news', 'news')
+    for news in News.objects.all():
+        news.custom_url = 'Null'
+        news.save(update_fields=["custom_url"])
 
 class Migration(migrations.Migration):
 
@@ -15,4 +21,6 @@ class Migration(migrations.Migration):
             name='custom_url',
             field=models.CharField(default='none', max_length=50),
         ),
+        migrations.RunPython(migrate_old_data, reverse_code=migrations.RunPython.noop),
+
     ]
