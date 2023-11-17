@@ -38,7 +38,7 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
     GET:
         Возвращает список всех новостей подтвержденных админом.
     """
-    queryset = News.objects.all().filter(IsAproved=True)
+    queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get']
     @swagger_auto_schema(
