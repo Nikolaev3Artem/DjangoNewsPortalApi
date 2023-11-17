@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='news',
             name='custom_url',
-            field=models.CharField(default='none', max_length=50),
+            field=models.CharField(blank=True, default=None, max_length=50, null=True, unique=True),
         ),
         migrations.RunPython(migrate_old_data, reverse_code=migrations.RunPython.noop),
 

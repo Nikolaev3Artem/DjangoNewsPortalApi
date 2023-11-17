@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('news', '0009_alter_news_custom_url'),
+        ('news', '0008_news_custom_url'),
     ]
 
     operations = [
