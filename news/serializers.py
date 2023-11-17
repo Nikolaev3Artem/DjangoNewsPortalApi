@@ -20,8 +20,8 @@ class NewsSerializer(serializers.ModelSerializer):
         - pub_date - дата публикации
         - country - страна в которой был создан пост
         - content - контент поста
-        - IsAproved - прошёл ли пост проверку админа
+        - is_approved - прошёл ли пост проверку админа
     """
     class Meta:
         model = News
-        fields = ('title','author','link','image_url','description','pub_date','country','content','IsAproved')
+        fields = ('title','author','link','image_url','description','pub_date','country','content','is_approved')
