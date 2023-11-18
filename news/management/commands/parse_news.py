@@ -14,7 +14,7 @@ class Command(BaseCommand):
             for news in data['results']:
                 if news != "message":
                     try:
-                        if news['image_url'] != None or news['image_url'][0:4] == 'https':
+                        if news['image_url'] != None or news['image_url'][0:4] == 'https' & len(news['content']) != 0:
                             if len(news['content']) >= 1800:
                                 content = news['content'][0:1800]
                             else:
@@ -27,6 +27,7 @@ class Command(BaseCommand):
                                     link = news['link'],
                                     image_url = news['image_url'],
                                     pub_date = news['pubDate'],
+                                    update_date = news['pubDate'],
                                     description = news['description'],
                                     country = news['country'],
                                     content = content
@@ -37,6 +38,7 @@ class Command(BaseCommand):
                                     link = news['link'],
                                     image_url = news['image_url'],
                                     pub_date = news['pubDate'],
+                                    update_date = news['pubDate'],
                                     description = news['description'],
                                     country = news['country'],
                                     content = content

@@ -24,11 +24,6 @@ def translate_text(data):
         temp_word += i
     return result
 
-# @admin.action(description="Publish and translate post")
-# def publish_post(modeladmin, request, queryset):
-#     if queryset.get():
-
-
 @admin.action(description="Delete post")
 def delete_post(modeladmin, request, queryset):
     queryset.delete()
@@ -48,8 +43,8 @@ class NewsAdmin(admin.ModelAdmin):
         obj.is_approved = True
         obj.title = translate['key_1']
         obj.content = translate['key_2']
+        obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 
 
-# Register your models here.
 admin.site.register(News, NewsAdmin)
