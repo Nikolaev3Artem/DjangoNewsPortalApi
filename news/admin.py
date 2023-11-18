@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News
+from .models import News, Articles, Author, Tags
 from . import *
 
 def translate_text(data):
@@ -40,11 +40,23 @@ class NewsAdmin(admin.ModelAdmin):
                 translate['key_2'] += translate_text([obj.content[800:len(obj.content)-1]])['key_1']
             elif len(obj.content) <= 800:
                 translate = translate_text([obj.title, obj.content])
-        obj.is_approved = True
-        obj.title = translate['key_1']
-        obj.content = translate['key_2']
+            obj.is_approved = True
+            obj.title = translate['key_1']
+            obj.content = translate['key_2']
         obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 
+class ArticlesAdmin(admin.ModelAdmin):
+    pass
+
+class AuthorAdmin(admin.ModelAdmin):
+    pass
+
+class TagsAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.register(News, NewsAdmin)
+admin.site.register(Articles, ArticlesAdmin)
+
+admin.site.register(Author, AuthorAdmin)
+admin.site.register(Tags, TagsAdmin)

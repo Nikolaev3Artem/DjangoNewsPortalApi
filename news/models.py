@@ -1,11 +1,49 @@
 from django.db import models
 from django.contrib import admin
 
-# Create your models here.
+class Tags(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=150)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return self.title
+
+class Articles(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=150)
+    link = models.CharField(max_length=450)
+
+    class Meta:
+        ordering = ["title"]
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
+
+    def __str__(self):
+        return self.title
+
+class Author(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50, null=False)
+    description = models.CharField(max_length=1500, blank=True)
+    articles = models.ManyToManyField(Articles, blank=True)
+    facebook = models.CharField(max_length=50, blank=True)
+    twitter = models.CharField(max_length=50, blank=True)
+    telegram = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        verbose_name = "Author"
+        verbose_name_plural = "Authors"
+
+    def __str__(self):
+        return self.name
+
 class News(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=150, null=True)
-    author = models.CharField(max_length=50, default='SimpleITNews')
+    author = models.ManyToManyField(Author, blank=True, default='SimpleITNews')
     link = models.CharField(max_length=200, null=True, unique=True)
     image_url = models.CharField(max_length=500, null=True, blank=True)
     description = models.CharField(max_length=1000, null=True, blank=True)
@@ -16,9 +54,9 @@ class News(models.Model):
     custom_url = models.CharField(max_length=50,default=None, unique=True,null=True, blank=True)
     is_approved = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         verbose_name = "News"
         verbose_name_plural = "News"
+
+    def __str__(self):
+        return self.title
