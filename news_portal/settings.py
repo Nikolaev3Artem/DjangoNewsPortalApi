@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
 
 # Application definition
 
@@ -71,8 +71,8 @@ WSGI_APPLICATION = 'news_portal.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DATABASE_ENGINE'),
-        'NAME': BASE_DIR / os.getenv('DATABASE_NAME'),
+        'ENGINE': os.getenv('DATABASE_ENGINE', 'db.sqlite3'),
+        'NAME': BASE_DIR / os.getenv('DATABASE_NAME', 'django.db.backends.sqlite3'),
     }
 }
 
