@@ -23,11 +23,15 @@ def translate_text(data):
         temp_word += i
     return result
 
-
 @admin.action(description="Publish and translate post")
 def publish_post(modeladmin, request, queryset):
-    translate = translate_text([queryset.get().title, queryset.get().content])
-    queryset.update(is_approved=True, title=translate['key_1'],content=translate['key_2'])
+    if queryset.get():
+        if len(queryset.get().content) > 800:
+            translate = translate_text([queryset.get().title, queryset.get().content[0:800]])
+            translate['key_2'] += translate_text([queryset.get().content[800:len(queryset.get().content)]])
+        elif len(queryset.get().content) <= 800:
+            translate = translate_text([queryset.get().title, queryset.get().content])
+        queryset.update(is_approved = True, title = translate['key_1'],content = translate['key_2'])
 
 @admin.action(description="Delete post")
 def delete_post(modeladmin, request, queryset):
