@@ -3,8 +3,7 @@ from django.contrib import admin
 
 class Tags(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=150)
-
+    title = models.CharField(max_length=50)
     class Meta:
         ordering = ["title"]
 
@@ -14,7 +13,6 @@ class Tags(models.Model):
 class Articles(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=150)
-    link = models.CharField(max_length=450)
 
     class Meta:
         ordering = ["title"]
@@ -23,7 +21,7 @@ class Articles(models.Model):
 
     def __str__(self):
         return self.title
-
+    
 class Author(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, null=False)
@@ -53,6 +51,7 @@ class News(models.Model):
     country = models.CharField(max_length=50, null=True, blank=True)
     content = models.CharField(max_length=1800, null=True)
     custom_url = models.CharField(max_length=50,default=None, unique=True,null=True, blank=True)
+    tags = models.ManyToManyField(Tags)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
@@ -61,3 +60,4 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
+    
