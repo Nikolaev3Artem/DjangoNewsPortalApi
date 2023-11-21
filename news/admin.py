@@ -43,6 +43,12 @@ class NewsAdmin(admin.ModelAdmin):
             obj.is_approved = True
             obj.title = translate['key_1']
             obj.content = translate['key_2']
+        
+        temp_url = ''
+        temp_url = temp_url.join(var for var in obj.custom_url if var.isalnum())
+        print(temp_url)
+        obj.custom_url = temp_url
+
         obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 

@@ -48,4 +48,4 @@ class NewsSerializer(serializers.ModelSerializer):
         model = News
 
         fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content', 'is_approved')
-        depth = 2 
+        depth = 1

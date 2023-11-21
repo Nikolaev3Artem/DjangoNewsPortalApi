@@ -28,7 +28,7 @@ class Author(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=1500, blank=True)
-    articles = models.ManyToManyField(Articles, blank=True)
+    articles = models.ManyToManyField(Articles)
     facebook = models.CharField(max_length=50, blank=True)
     twitter = models.CharField(max_length=50, blank=True)
     telegram = models.CharField(max_length=50, blank=True)
@@ -43,7 +43,8 @@ class Author(models.Model):
 class News(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=150, null=True)
-    author = models.ManyToManyField(Author, blank=True, default='SimpleITNews')
+    news_creator = models.CharField(max_length=300, blank=False)
+    author = models.ManyToManyField(Author)
     link = models.CharField(max_length=200, null=True, unique=True)
     image_url = models.CharField(max_length=500, null=True, blank=True)
     description = models.CharField(max_length=1000, null=True, blank=True)
