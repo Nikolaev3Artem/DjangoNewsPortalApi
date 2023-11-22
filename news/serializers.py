@@ -19,7 +19,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
 
-        fields = ('name', 'description', 'articles', 'facebook', 'twitter', 'telegram')
+        fields = ('name')
         depth = 1
 
 class NewsSerializer(serializers.ModelSerializer):
@@ -42,10 +42,42 @@ class NewsSerializer(serializers.ModelSerializer):
         - update_date - дата обновления поста
         - country - страна в которой был создан пост
         - content - контент поста
+        - tags - теги для новости
         - is_approved - прошёл ли пост проверку админа
     """
+
     class Meta:
         model = News
 
         fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'is_approved')
         depth = 1
+
+class SingleNewsSerializer(serializers.ModelSerializer):
+    """
+        Сериализатор для модели News.
+
+        Атрибуты:
+        - None
+
+        Методы:
+        - None
+
+        Поля:
+        - title - заголовок новости
+        - author - автор(ы) поста
+        - link - ссылка на пост
+        - image_url - ссылка на изображение
+        - description - содержимое новости
+        - pub_date - дата публикации
+        - update_date - дата обновления поста
+        - country - страна в которой был создан пост
+        - content - контент поста
+        - tags - теги для новости
+        - is_approved - прошёл ли пост проверку админа
+    """
+
+    class Meta:
+        model = News
+
+        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'is_approved')
+        depth = 2

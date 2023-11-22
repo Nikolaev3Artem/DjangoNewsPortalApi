@@ -1,10 +1,10 @@
 from rest_framework import viewsets
-from .serializers import NewsSerializer
+from .serializers import NewsSerializer, SingleNewsSerializer
 from .models import News
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
-from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
 
 class NewsViewSet(viewsets.ModelViewSet):
     """
@@ -30,6 +30,20 @@ class NewsViewSet(viewsets.ModelViewSet):
             Возвращает список всех новостей.
         """
         return super().get(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """
+            Возвращает новость по айди.
+        """
+
+        instance = self.get_object()
+        
+        serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
+
+
+        return Response(serializer.data)
+
+
 
 class ApprovedNewsViewSet(viewsets.ModelViewSet):
     """
