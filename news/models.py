@@ -50,7 +50,7 @@ class News(models.Model):
     update_date =  models.CharField(max_length=100, null=True, blank=True)
     country = models.CharField(max_length=50, null=True, blank=True)
     content = models.TextField(max_length=1800, null=True)
-    custom_url = models.CharField(max_length=50,default=None, unique=True)
+    custom_url = models.CharField(max_length=50, unique=True)
     tags = models.ManyToManyField(Tags)
     is_approved = models.BooleanField(default=False)
 
