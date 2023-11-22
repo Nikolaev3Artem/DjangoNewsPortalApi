@@ -2,15 +2,6 @@
 
 from django.db import migrations, models
 
-   
-def migrate_old_data(apps, schema_editor):
-    News = apps.get_model('news', 'news')
-    i = 0
-    for news in News.objects.all():
-        news.custom_url = f'Null_{i}'
-        news.save(update_fields=["custom_url"])
-        i += 1
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -18,8 +9,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_old_data, reverse_code=migrations.RunPython.noop),
-
         migrations.AddField(
             model_name='news',
             name='custom_url',
