@@ -26,10 +26,11 @@ class Author(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=1500, blank=True)
+    route = models.URLField(max_length=400, blank=True)
     articles = models.ManyToManyField(Articles)
-    facebook = models.CharField(max_length=50, blank=True)
-    twitter = models.CharField(max_length=50, blank=True)
-    telegram = models.CharField(max_length=50, blank=True)
+    facebook = models.CharField(max_length=50, blank=True, null=True)
+    twitter = models.CharField(max_length=50, blank=True, null=True)
+    telegram = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         verbose_name = "Author"
