@@ -71,8 +71,19 @@ WSGI_APPLICATION = 'news_portal.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DATABASE_ENGINE', 'db.sqlite3'),
-        'NAME': BASE_DIR / os.getenv('DATABASE_NAME', 'django.db.backends.sqlite3'),
+
+        'ENGINE': os.getenv('DATABASE_ENGINE','django.db.backends.postgresql_psycopg2'),
+
+        'NAME': os.getenv('DATABASE_NAME'),
+
+        'USER': os.getenv('DATABASE_USER','postgres'),
+
+        'PASSWORD': os.getenv('DATABASE_PASSWORD',''),
+
+        'HOST': os.getenv('DATABASE_HOST','127.0.0.1'),
+
+        'PORT': os.getenv('DATABASE_PORT','5432'),
+
     }
 }
 
