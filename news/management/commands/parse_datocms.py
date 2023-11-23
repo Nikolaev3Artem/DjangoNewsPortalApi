@@ -24,6 +24,7 @@ def parse_authors():
     responce = request
     if responce.status_code == 200:
         for author in responce.json()['data']['allAuthors']:
+            create_new_author = True
             twitter = None
             telegram = None
             facebook = None
@@ -33,16 +34,19 @@ def parse_authors():
                 telegram =  author["socials"]["telegram"]
             elif 'facebook' in author["socials"].keys():
                 facebook =  author["socials"]["facebook"]
-                
-
-            Author.objects.create(
-                name = author['authorname'],
-                route = author["route"],
-                twitter = twitter,
-                telegram = telegram,
-                facebook = facebook,
-                description = author["authordescription"]
-            )
+            
+            for our_author in Author.objects.all():
+                if author['authorname'] == our_author.name:
+                    create_new_author = False
+            if create_new_author:
+                Author.objects.create(
+                    name = author['authorname'],
+                    route = author["route"],
+                    twitter = twitter,
+                    telegram = telegram,
+                    facebook = facebook,
+                    description = author["authordescription"]
+                )
 def parse_tags():
     ...
 
