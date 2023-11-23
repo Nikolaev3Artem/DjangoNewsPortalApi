@@ -14,9 +14,15 @@ class Command(BaseCommand):
             for news in data['results']:
                 if news != "message":
                     try:
+                        # print(f"Image Url: {news['image_url']} \n\
+                        #     Content: {news['content']} \n\
+                        #     Creator: {news['creator']} \n\
+                        #     Pub Date: {news['pubDate']} \n\
+                        #     Description: {news['description']} \n\
+                        #     Country: {news['country']}\n\n\n")
+                        
                         if news['image_url'] and \
                             len(news['content']) != 0 and \
-                            news['creator'] and \
                             news['pubDate'] and \
                             news['description'] and \
                             news['country'] and \
@@ -25,11 +31,8 @@ class Command(BaseCommand):
                                 content = news['content'][0:1800]
                             else:
                                 content = news['content']
-                            if len(news['creator']) > 1:
-                                for creator in news['creator']:
-                                    creators += str(creator) + ', '
-                            else:
-                                creators = news['creator']
+                            
+                            creators = news['creator']
                             if news['creator']: 
                                 News.objects.create(
                                     title = news['title'], 
