@@ -62,7 +62,7 @@ class TagsAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(News, NewsAdmin)
-admin.site.register(Articles, ArticlesAdmin)
+# admin.site.register(Articles, ArticlesAdmin)
 
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Tags, TagsAdmin)
