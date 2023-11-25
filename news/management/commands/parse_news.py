@@ -31,10 +31,7 @@ class Command(BaseCommand):
                                 Pub Date: {news['pubDate']} \n\
                                 Description: {news['description']} \n\
                                 Country: {news['country']}\n\n\n")
-                            if len(news['content']) >= 1800:
-                                content = news['content'][0:1800]
-                            else:
-                                content = news['content']
+                                
                             if news['creator']:
                                 creators = ""
                             else:
@@ -48,7 +45,7 @@ class Command(BaseCommand):
                                 update_date = news['pubDate'],
                                 description = news['description'],
                                 country = news['country'],
-                                content = content
+                                content = news['content']
                             )                     
                     except Exception as e:
                         print(e)
