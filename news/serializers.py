@@ -49,7 +49,7 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'is_approved')
+        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'categories', 'is_approved')
         depth = 1
 
 class SingleNewsSerializer(serializers.ModelSerializer):
@@ -73,11 +73,12 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         - country - страна в которой был создан пост
         - content - контент поста
         - tags - теги для новости
+        - categories - категории поста
         - is_approved - прошёл ли пост проверку админа
     """
 
     class Meta:
         model = News
 
-        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'is_approved')
+        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'categories','is_approved')
         depth = 2

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News, Articles, Author, Tags
+from .models import News, Articles, Author, Tags, Categories
 from . import *
 
 def translate_text(data):
@@ -43,7 +43,7 @@ class NewsAdmin(admin.ModelAdmin):
             temp_url = ''
             temp_url = temp_url.join(var for var in obj.custom_url if var.isalnum())
             obj.custom_url = temp_url.lower()
-            
+
         obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 
@@ -56,8 +56,12 @@ class AuthorAdmin(admin.ModelAdmin):
 class TagsAdmin(admin.ModelAdmin):
     pass
 
+class CategoriesAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(News, NewsAdmin)
 # admin.site.register(Articles, ArticlesAdmin)
 
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Tags, TagsAdmin)
+admin.site.register(Categories, CategoriesAdmin)

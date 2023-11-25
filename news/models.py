@@ -1,6 +1,16 @@
 from django.db import models
 from django.contrib import admin
 
+class Categories(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=50, blank=False, null=False)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return self.title
+
 class Tags(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50)
@@ -54,6 +64,7 @@ class News(models.Model):
     content = models.TextField(max_length=1800, null=True)
     custom_url = models.CharField(max_length=50,default=None, unique=True,null=True)
     tags = models.ManyToManyField(Tags)
+    categories = models.ManyToManyField(Categories, null=True, blank=False)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
