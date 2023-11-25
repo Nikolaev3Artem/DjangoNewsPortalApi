@@ -42,9 +42,8 @@ class NewsAdmin(admin.ModelAdmin):
         if obj.custom_url:
             temp_url = ''
             temp_url = temp_url.join(var for var in obj.custom_url if var.isalnum())
-            print(temp_url)
-            obj.custom_url = temp_url
-
+            obj.custom_url = temp_url.lower()
+            
         obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 
