@@ -31,7 +31,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'rest_framework_swagger',
-    'drf_spectacular'
+    'drf_spectacular',
+    'django_filters'
 
 ]
 
@@ -87,7 +88,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -132,6 +132,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {     
     # ВАШИ НАСТРОЙКИ     
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
 }
 
 SWAGGER_SETTINGS = {

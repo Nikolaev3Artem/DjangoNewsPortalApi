@@ -3,9 +3,8 @@ from .serializers import NewsSerializer, SingleNewsSerializer
 from .models import News
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-
+from django_filters.rest_framework import DjangoFilterBackend
 class NewsViewSet(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех новостей.
@@ -16,6 +15,16 @@ class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
     http_method_names = ['get']
+
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
+    
+    filterset_fields = {
+        "tags",
+        "categories"
+    }
+
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список новостей'),
@@ -26,20 +35,18 @@ class NewsViewSet(viewsets.ModelViewSet):
         tags=['Новости'],
     )
     def get(self, request, *args, **kwargs):
-        """
-            Возвращает список всех новостей.
-        """
-        return super().get(request, *args, **kwargs)
+        queryset = self.filter_queryset(News.objects.all())
+
+        serializer = NewsSerializer(queryset, many=True)
+
+        return Response(serializer.data)
     
     def retrieve(self, request, *args, **kwargs):
         """
             Возвращает новость по айди.
         """
-
         instance = self.get_object()
-        
         serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
-
 
         return Response(serializer.data)
 
@@ -54,7 +61,16 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
     """
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
-    http_method_names = ['get']
+    http_method_names = ['get', ]
+
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
+    
+    filterset_fields = {
+        "tags",
+        "categories"
+    }
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список новостей подтвержденных админом'),
@@ -65,7 +81,20 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         tags=['Новости'],
     )
     def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(News.objects.all())
+
+        serializer = NewsSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
         """
-            Возвращает список всех новостей подтвержденных админом.
+            Возвращает новость по айди.
         """
-        return super().get(request, *args, **kwargs)
+
+        instance = self.get_object()
+        
+        serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
+
+
+        return Response(serializer.data)
