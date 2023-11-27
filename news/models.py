@@ -14,6 +14,7 @@ class Categories(models.Model):
 class Tags(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50)
+    
     class Meta:
         ordering = ["title"]
 

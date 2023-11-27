@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .serializers import NewsSerializer, SingleNewsSerializer
-from .models import News
+from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer
+from .models import News, Tags, Author, Categories
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.response import Response
@@ -13,6 +13,8 @@ class NewsViewSet(viewsets.ModelViewSet):
 
     GET:
         Возвращает список всех новостей.
+    RETRIEVE:
+        Возврощает новость по айди.
     """
     queryset = News.objects.all()
     serializer_class = NewsSerializer
@@ -60,6 +62,8 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
 
     GET:
         Возвращает список всех новостей подтвержденных админом.
+    RETRIEVE:
+        Возврощает новость по айди.
     """
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
@@ -98,5 +102,95 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         
         serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
 
+
+        return Response(serializer.data)
+    
+class TagsViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint для просмотра списка всех тегов.
+
+    GET:
+        Возвращает список всех тегов.
+    """
+    queryset = Tags.objects.all()
+    serializer_class = TagsSerializer
+    http_method_names = ['get']
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список тегов'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список тегов',
+        operation_description='Возвращает список всех тегов.',
+        tags=['Теги'],
+    )
+    def get(self, request, *args, **kwargs):
+        """
+            Возвращает список тегов.
+        """
+        queryset = self.filter_queryset(queryset)
+
+        serializer = TagsSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+class CategoriesViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint для просмотра списка всех категорий.
+
+    GET:
+        Возвращает список всех категорий.
+    """
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    http_method_names = ['get']
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список категорий'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список тегов',
+        operation_description='Возвращает список всех категорий.',
+        tags=['Категория'],
+    )
+    def get(self, request, *args, **kwargs):
+        """
+            Возвращает список категорий.
+        """
+        queryset = self.filter_queryset(queryset)
+
+        serializer = CategoriesSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+class AuthorViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint для просмотра списка всех новостей.
+
+    GET:
+        Возвращает список всех тегов.
+    """
+    queryset = Tags.objects.all()
+    serializer_class = TagsSerializer
+    http_method_names = ['get']
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список тегов'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список тегов',
+        operation_description='Возвращает список всех тегов.',
+        tags=['Новости'],
+    )
+    def get(self, request, *args, **kwargs):
+        """
+            Возвращает список тегов.
+        """
+        queryset = self.filter_queryset(queryset)
+
+        serializer = TagsSerializer(queryset, many=True)
 
         return Response(serializer.data)

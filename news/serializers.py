@@ -1,4 +1,4 @@
-from .models import News, Author
+from .models import News, Author, Tags, Categories
 from rest_framework import serializers
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -20,6 +20,48 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
 
         fields = ('name')
+        depth = 1
+
+class TagsSerializer(serializers.ModelSerializer):
+    """
+        Сериализатор для модели Tags.
+
+        Атрибуты:
+        - None
+
+        Методы:
+        - None
+
+        Поля:
+        - id - айди тега.
+        - title - название тега.
+    """
+
+    class Meta:
+        model = Tags
+
+        fields = ('id', 'title')
+        depth = 1
+
+class CategoriesSerializer(serializers.ModelSerializer):
+    """
+        Сериализатор для модели Categories.
+
+        Атрибуты:
+        - None
+
+        Методы:
+        - None
+
+        Поля:
+        - id - айди категории.
+        - title - название категории.
+    """
+
+    class Meta:
+        model = Categories
+
+        fields = ('id', 'title')
         depth = 1
 
 class NewsSerializer(serializers.ModelSerializer):
