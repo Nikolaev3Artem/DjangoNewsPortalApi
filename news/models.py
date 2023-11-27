@@ -53,7 +53,7 @@ class Author(models.Model):
 class News(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=150, null=True)
-    news_creator = models.CharField(max_length=300, blank=False, null=True)
+    news_creator = models.CharField(max_length=300, blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, blank=True)
     link = models.CharField(max_length=200, null=True, unique=True)
     image_url = models.CharField(max_length=500, null=True, blank=True)

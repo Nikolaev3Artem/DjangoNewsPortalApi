@@ -5,6 +5,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+
+
 class NewsViewSet(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех новостей.
@@ -21,8 +23,8 @@ class NewsViewSet(viewsets.ModelViewSet):
     ]
     
     filterset_fields = {
-        "tags",
-        "categories"
+        "tags__title",
+        "categories__title"
     }
 
     @swagger_auto_schema(
@@ -35,7 +37,7 @@ class NewsViewSet(viewsets.ModelViewSet):
         tags=['Новости'],
     )
     def get(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(News.objects.all())
+        queryset = self.filter_queryset(queryset)
 
         serializer = NewsSerializer(queryset, many=True)
 
@@ -81,7 +83,7 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         tags=['Новости'],
     )
     def get(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(News.objects.all())
+        queryset = self.filter_queryset(queryset)
 
         serializer = NewsSerializer(queryset, many=True)
 
