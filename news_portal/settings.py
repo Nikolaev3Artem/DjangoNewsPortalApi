@@ -73,17 +73,17 @@ WSGI_APPLICATION = 'news_portal.wsgi.application'
 DATABASES = {
     'default': {
 
-        'ENGINE': os.getenv('DATABASE_ENGINE','django.db.backends.postgresql_psycopg2'),
+        'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql_psycopg2'),
 
         'NAME': os.getenv('DATABASE_NAME'),
 
-        'USER': os.getenv('DATABASE_USER','postgres'),
+        'USER': os.getenv('DATABASE_USER', 'postgres'),
 
-        'PASSWORD': os.getenv('DATABASE_PASSWORD',''),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
 
-        'HOST': os.getenv('DATABASE_HOST','127.0.0.1'),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
 
-        'PORT': os.getenv('DATABASE_PORT','5432'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
 
     }
 }
@@ -129,8 +129,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REST_FRAMEWORK = {     
-    # ВАШИ НАСТРОЙКИ     
+REST_FRAMEWORK = {
+    # ВАШИ НАСТРОЙКИ
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',

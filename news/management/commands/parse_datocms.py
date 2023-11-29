@@ -1,7 +1,10 @@
 from django.core.management.base import BaseCommand
 from . import *
-from news.models import News, Author
+from news.models import Author
 import requests
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 def parse_authors():
     url = 'https://graphql.datocms.com/'
@@ -16,12 +19,13 @@ def parse_authors():
             }
         }
     '''
-    headers = {"Authorization":"Bearer e3b90fba98c826805b78cf4bf0888e"}
+    headers = {"Authorization":os.getenv('BEARER_DATOCMS')}
     json_data = {
         "query": query,
         }
     request = requests.post(url=url, json=json_data,headers=headers)
     responce = request
+    authors = Author.objects.all()
     if responce.status_code == 200:
         for author in responce.json()['data']['allAuthors']:
             create_new_author = True
@@ -35,7 +39,7 @@ def parse_authors():
             elif 'facebook' in author["socials"].keys():
                 facebook =  author["socials"]["facebook"]
             
-            for our_author in Author.objects.all():
+            for our_author in authors:
                 if author['authorname'] == our_author.name:
                     create_new_author = False
             if create_new_author:

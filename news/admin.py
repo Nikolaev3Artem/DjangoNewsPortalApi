@@ -2,13 +2,16 @@ from django.contrib import admin
 from .models import News, Articles, Author, Tags, Categories
 from . import *
 
+
 def translate_text(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
     if len(data) == 2:
-        querystring = {"text":f"{data[0]} | {data[1]} |","to":"uk","from":"en"}
+        querystring = {
+            "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
     else:
-        querystring = {"text":f"{data[0]} |","to":"uk","from":"en"}
-    headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db","X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
+        querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
+    headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db",
+               "X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
 
     response = requests.get(url, headers=headers, params=querystring)
 
@@ -17,12 +20,13 @@ def translate_text(data):
     k = 0
     for i in response.json()['translated_text']['uk']:
         if i == "|":
-            k+=1
+            k += 1
             result[f'key_{k}'] = temp_word
             temp_word = ""
             continue
         temp_word += i
     return result
+
 
 class NewsAdmin(admin.ModelAdmin):
     list_display = ["title", 'country', "is_approved"]
@@ -32,32 +36,39 @@ class NewsAdmin(admin.ModelAdmin):
         if obj.is_approved:
             if len(obj.content) > 800:
                 translate = translate_text([obj.title, obj.content[0:800]])
-                translate['key_2'] += translate_text([obj.content[800:len(obj.content)-1]])['key_1']
+                translate['key_2'] += translate_text(
+                    [obj.content[800:len(obj.content)-1]])['key_1']
             elif len(obj.content) <= 800:
                 translate = translate_text([obj.title, obj.content])
             obj.is_approved = True
             obj.title = translate['key_1']
             obj.content = translate['key_2']
-        
+
         if obj.custom_url:
             temp_url = ''
-            temp_url = temp_url.join(var for var in obj.custom_url if var.isalnum())
+            temp_url = temp_url.join(
+                var for var in obj.custom_url if var.isalnum())
             obj.custom_url = temp_url.lower()
 
         obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 
+
 class ArticlesAdmin(admin.ModelAdmin):
     pass
+
 
 class AuthorAdmin(admin.ModelAdmin):
     pass
 
+
 class TagsAdmin(admin.ModelAdmin):
     pass
 
+
 class CategoriesAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.register(News, NewsAdmin)
 # admin.site.register(Articles, ArticlesAdmin)

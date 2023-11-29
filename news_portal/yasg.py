@@ -8,14 +8,18 @@ schema_view = get_schema_view(
         title="News Portal Api",
         default_version='v1',
         description="Test description",
-        license=openapi.License(name="BSD License")  # потом поменять когда станет понятно какая лицензия
+        # потом поменять когда станет понятно какая лицензия
+        license=openapi.License(name="BSD License")
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    path('swagger<str:format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema--ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('swagger<str:format>/',
+         schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger',
+         cache_timeout=0), name='schema--ui'),
+    path('redoc/', schema_view.with_ui('redoc',
+         cache_timeout=0), name='schema-redoc'),
 ]

@@ -1,6 +1,7 @@
 from .models import News, Author, Tags, Categories
 from rest_framework import serializers
 
+
 class AuthorSerializer(serializers.ModelSerializer):
     """
         Сериализатор для модели Author.
@@ -21,6 +22,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
         fields = ('name')
         depth = 1
+
 
 class TagsSerializer(serializers.ModelSerializer):
     """
@@ -43,6 +45,7 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = ('id', 'title')
         depth = 1
 
+
 class CategoriesSerializer(serializers.ModelSerializer):
     """
         Сериализатор для модели Categories.
@@ -63,6 +66,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
         fields = ('id', 'title')
         depth = 1
+
 
 class NewsSerializer(serializers.ModelSerializer):
     """
@@ -91,8 +95,10 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'categories', 'is_approved')
+        fields = ('title', 'author', 'link', 'image_url', 'description', 'pub_date',
+                  'update_date', 'country', 'content', 'tags', 'categories', 'is_approved')
         depth = 1
+
 
 class SingleNewsSerializer(serializers.ModelSerializer):
     """
@@ -122,5 +128,6 @@ class SingleNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('title','author','link','image_url','description','pub_date', 'update_date','country','content','tags', 'categories','is_approved')
+        fields = ('title', 'author', 'link', 'image_url', 'description', 'pub_date',
+                  'update_date', 'country', 'content', 'tags', 'categories', 'is_approved')
         depth = 2

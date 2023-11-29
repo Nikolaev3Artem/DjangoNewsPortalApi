@@ -20,14 +20,14 @@ class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get']
 
-    filter_backends = [
-        DjangoFilterBackend,
-    ]
+    # filter_backends = [
+    #     DjangoFilterBackend,
+    # ]
     
-    filterset_fields = {
-        "tags__title",
-        "categories__title"
-    }
+    # filterset_fields = {
+    #     "tags__title",
+    #     "categories__title"
+    # }
 
     @swagger_auto_schema(
         responses={
@@ -38,13 +38,23 @@ class NewsViewSet(viewsets.ModelViewSet):
         operation_description='Возвращает список всех новостей.',
         tags=['Новости'],
     )
-    def get(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(queryset)
-
-        serializer = NewsSerializer(queryset, many=True)
-
-        return Response(serializer.data)
+    # def get_queryset(self):
+    #     """
+    #     Optionally restricts the returned purchases to a given user,
+    #     by filtering against a `username` query parameter in the URL.
+    #     """
+        
+    #     if tags is not None:
+    #         queryset = queryset.filter(news__tags=tags)
+    #     return queryset
     
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+        serializer = NewsSerializer(queryset, many=True)
+        tags = self.request.GET['tags']
+        print(tags)
+        return Response(serializer.data)
+
     def retrieve(self, request, *args, **kwargs):
         """
             Возвращает новость по айди.
