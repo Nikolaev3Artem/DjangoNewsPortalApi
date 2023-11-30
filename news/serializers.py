@@ -79,6 +79,7 @@ class NewsSerializer(serializers.ModelSerializer):
         - None
 
         Поля:
+        - id - айди поста
         - title - заголовок новости
         - author - автор(ы) поста
         - link - ссылка на пост
@@ -95,7 +96,7 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('title', 'author', 'link', 'image_url', 'description', 'pub_date',
+        fields = ('id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
                   'update_date', 'country', 'content', 'tags', 'categories', 'is_approved')
         depth = 1
 
@@ -111,6 +112,7 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         - None
 
         Поля:
+        - id - айди поста
         - title - заголовок новости
         - author - автор(ы) поста
         - link - ссылка на пост
@@ -128,6 +130,6 @@ class SingleNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('title', 'author', 'link', 'image_url', 'description', 'pub_date',
+        fields = ('id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
                   'update_date', 'country', 'content', 'tags', 'categories', 'is_approved')
         depth = 2

@@ -20,15 +20,6 @@ class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get']
 
-    # filter_backends = [
-    #     DjangoFilterBackend,
-    # ]
-    
-    # filterset_fields = {
-    #     "tags__title",
-    #     "categories__title"
-    # }
-
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список новостей'),
@@ -38,22 +29,26 @@ class NewsViewSet(viewsets.ModelViewSet):
         operation_description='Возвращает список всех новостей.',
         tags=['Новости'],
     )
-    # def get_queryset(self):
-    #     """
-    #     Optionally restricts the returned purchases to a given user,
-    #     by filtering against a `username` query parameter in the URL.
-    #     """
-        
-    #     if tags is not None:
-    #         queryset = queryset.filter(news__tags=tags)
-    #     return queryset
-    
-    def get(self, request, *args, **kwargs):
-        queryset = self.queryset
-        serializer = NewsSerializer(queryset, many=True)
-        tags = self.request.GET['tags']
-        print(tags)
-        return Response(serializer.data)
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        tags = self.request.query_params.get('tags', None)
+        categories = self.request.query_params.get('category', None)
+        if tags is not None:
+            for tag in tags.split(','):
+                queryset = queryset.filter(tags__title=tag)
+        elif categories is not None:
+            for category in categories.split(','):
+                queryset = queryset.filter(categories__title=category)
+        # elif tags is not None and category is not None:
+        #     for category in categories.split(','):
+        #         queryset = queryset.filter(categories__title=category)
+
+        #     for tag in tags.split(','):
+        #         queryset = queryset.filter(tags__title=tag)
+
+        return queryset
 
     def retrieve(self, request, *args, **kwargs):
         """
@@ -79,14 +74,6 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
 
-    filter_backends = [
-        DjangoFilterBackend,
-    ]
-    
-    filterset_fields = {
-        "tags",
-        "categories"
-    }
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список новостей подтвержденных админом'),
@@ -96,12 +83,25 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         operation_description='Возвращает список всех новостей подтвержденных админом.',
         tags=['Новости'],
     )
-    def get(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(queryset)
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
 
-        serializer = NewsSerializer(queryset, many=True)
+        tags = self.request.query_params.get('tags', None)
+        categories = self.request.query_params.get('category', None)
 
-        return Response(serializer.data)
+        if tags is not None:
+            for tag in tags.split(','):
+                queryset = queryset.filter(tags__title=tag)
+        elif categories is not None:
+            for category in categories.split(','):
+                queryset = queryset.filter(categories__title=category)
+        # elif tags is not None and category is not None:
+        #     for category in categories.split(','):
+        #         queryset = queryset.filter(categories__title=category)
+
+        #     for tag in tags.split(','):
+        #         queryset = queryset.filter(tags__title=tag)
+        return queryset
 
     def retrieve(self, request, *args, **kwargs):
         """
