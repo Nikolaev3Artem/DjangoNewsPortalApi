@@ -6,6 +6,14 @@ from dotenv import load_dotenv
 import requests
 load_dotenv()
 
+def text_to_time(text):
+    word_count = 0
+    for word in text:
+        if word != ' ':
+            word_count += 1
+    
+    return int(word_count/238)
+
 class Command(BaseCommand):
     help = 'Parsing news from newsdata.io'
     API_KEY = os.getenv('NEWS_API_KEY')
@@ -24,15 +32,15 @@ class Command(BaseCommand):
                     news['description'] and \
                     news['country'] and \
                     news['image_url'][0:5] == 'https':
-                    print(f" \
-                        Link: {news['link']} \n\
-                        Title: {news['title']} \n\
-                        Image Url: {news['image_url']} \n\
-                        Content: {news['content']} \n\
-                        Creator: {news['creator']} \n\
-                        Pub Date: {news['pubDate']} \n\
-                        Description: {news['description']} \n\
-                        Country: {news['country']}\n\n\n")
+                    # print(f" \
+                    #     Link: {news['link']} \n\
+                    #     Title: {news['title']} \n\
+                    #     Image Url: {news['image_url']} \n\
+                    #     Content: {news['content']} \n\
+                    #     Creator: {news['creator']} \n\
+                    #     Pub Date: {news['pubDate']} \n\
+                    #     Description: {news['description']} \n\
+                    #     Country: {news['country']}\n\n\n")
                         
                     if news['creator']:
                         creators = ""
@@ -50,7 +58,8 @@ class Command(BaseCommand):
                         update_date = news['pubDate'],
                         description = news['description'],
                         country = news['country'],
-                        content = news['content']
+                        content = news['content'],
+                        time_to_read = text_to_time(news['content'])
                     )                     
         except Exception as e:
             print(f'Error: {e}')

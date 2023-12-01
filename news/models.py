@@ -69,11 +69,13 @@ class News(models.Model):
     pub_date = models.CharField(max_length=100, null=True, blank=True)
     update_date = models.CharField(max_length=100, null=True, blank=True)
     country = models.CharField(max_length=50, null=True, blank=True)
-    content = models.TextField(max_length=1800, null=True)
+    content = models.TextField(max_length=7000, null=True)
     custom_url = models.CharField(
         max_length=50, default=None, unique=True, null=True)
     tags = models.ManyToManyField(Tags)
     categories = models.ManyToManyField(Categories, blank=False)
+    time_to_read = models.IntegerField(blank=False, null=False)
+    rating = models.FloatField(default=5)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
