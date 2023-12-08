@@ -177,30 +177,30 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
 class AuthorViewSet(viewsets.ModelViewSet):
     """
-    API endpoint для просмотра списка всех новостей.
+    API endpoint для просмотра списка всех авторов.
 
     GET:
-        Возвращает список всех тегов.
+        Возвращает список всех авторов.
     """
-    queryset = Tags.objects.all()
-    serializer_class = TagsSerializer
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
     http_method_names = ['get']
 
     @swagger_auto_schema(
         responses={
-            200: openapi.Response(description='Список тегов'),
+            200: openapi.Response(description='Список авторов'),
             500: 'Внутренняя ошибка сервера',
         },
-        operation_summary='Список тегов',
-        operation_description='Возвращает список всех тегов.',
+        operation_summary='Список авторов',
+        operation_description='Возвращает список всех авторов.',
         tags=['Новости'],
     )
     def get(self, request, *args, **kwargs):
         """
-            Возвращает список тегов.
+            Возвращает список авторов.
         """
         queryset = self.filter_queryset(queryset)
 
-        serializer = TagsSerializer(queryset, many=True)
+        serializer = AuthorSerializer(queryset, many=True)
 
         return Response(serializer.data)
