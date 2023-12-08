@@ -65,7 +65,7 @@ class News(models.Model):
         Author, on_delete=models.CASCADE, null=True, blank=True)
     link = models.CharField(max_length=200, null=True, unique=True)
     image_url = models.CharField(max_length=500, null=True, blank=True)
-    description = models.TextField(max_length=1000, null=True, blank=True)
+    description = models.TextField(max_length=800, null=True, blank=True)
     pub_date = models.CharField(max_length=100, null=True, blank=True)
     update_date = models.CharField(max_length=100, null=True, blank=True)
     country = models.CharField(max_length=50, null=True, blank=True)

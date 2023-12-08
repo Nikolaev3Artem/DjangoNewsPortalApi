@@ -2,6 +2,19 @@ from django.contrib import admin
 from .models import News, Articles, Author, Tags, Categories
 from . import *
 
+def translate_content(data):
+    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
+    headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db",
+               "X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
+    i = 0
+    translated_content = ""
+    while i < len(data):
+        querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
+        response = requests.get(url, headers=headers, params=querystring)
+        translated_content += response.json()['translated_text']['uk']
+        i += 1000
+
+    return translated_content
 
 def translate_text(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
@@ -34,15 +47,11 @@ class NewsAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if obj.is_approved:
-            if len(obj.content) > 800:
-                translate = translate_text([obj.title, obj.content[0:800]])
-                translate['key_2'] += translate_text(
-                    [obj.content[800:len(obj.content)-1]])['key_1']
-            elif len(obj.content) <= 800:
-                translate = translate_text([obj.title, obj.content])
+            translate = translate_text([obj.title, obj.description])
             obj.is_approved = True
             obj.title = translate['key_1']
-            obj.content = translate['key_2']
+            obj.description = translate['key_2']
+            obj.content = translate_content(obj.content)
 
         if obj.custom_url:
             temp_url = ''
