@@ -76,6 +76,7 @@ class News(models.Model):
     categories = models.ManyToManyField(Categories, blank=False)
     time_to_read = models.IntegerField(blank=False, null=False)
     rating = models.FloatField(default=5)
+    img_alt = models.CharField(max_length=300, default=None)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
