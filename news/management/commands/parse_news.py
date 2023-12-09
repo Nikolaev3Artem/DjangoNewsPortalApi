@@ -49,11 +49,15 @@ class Command(BaseCommand):
                     else:
                         creators = news['creator']
 
+                    if requests.get(news['image_url']).status_code == 200:
+                        news_img = news['image_url']
+                    else:
+                        news_img = "Status code is not valid!"
                     News.objects.create(
                         title = news['title'], 
                         link = news['link'],
                         news_creator = creators,
-                        image_url = news['image_url'],
+                        image_url = news_img,
                         pub_date = news['pubDate'],
                         update_date = news['pubDate'],
                         description = news['description'],
