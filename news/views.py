@@ -41,15 +41,12 @@ class NewsList(viewsets.ModelViewSet):
         elif categories is not None:
             for category in categories.split(','):
                 queryset = queryset.filter(categories__title=category)
-        
+        elif tags is not None and category is not None:
+            for category in categories.split(','):
+                queryset = queryset.filter(categories__title=category,tags__title=tag)
         if custom_url is not None:
             queryset = queryset.filter(custom_url=custom_url)
-        # elif tags is not None and category is not None:
-        #     for category in categories.split(','):
-        #         queryset = queryset.filter(categories__title=category)
 
-        #     for tag in tags.split(','):
-        #         queryset = queryset.filter(tags__title=tag)
 
         return queryset
 
@@ -98,16 +95,12 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         elif categories is not None:
             for category in categories.split(','):
                 queryset = queryset.filter(categories__title=category)
-        
+        elif tags is not None and category is not None:
+            for category in categories.split(','):
+                queryset = queryset.filter(categories__title=category,tags__title=tag)
         if custom_url is not None:
             queryset = queryset.filter(custom_url=custom_url)
 
-        # elif tags is not None and category is not None:
-        #     for category in categories.split(','):
-        #         queryset = queryset.filter(categories__title=category)
-
-        #     for tag in tags.split(','):
-        #         queryset = queryset.filter(tags__title=tag)
         return queryset
 
 

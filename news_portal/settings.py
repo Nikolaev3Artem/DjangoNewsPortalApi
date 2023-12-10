@@ -18,8 +18,12 @@ DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
 
-# Application definition
+# Google Auth
+BASE_FRONTEND_URL = os.getenv('DJANGO_BASE_FRONTEND_URL', default='http://localhost:8000')
+GOOGLE_OAUTH2_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,16 +31,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'news',
     'drf_yasg',
     'rest_framework',
     'rest_framework_swagger',
     'drf_spectacular',
-    'django_filters'
-
+    'django_filters',
+    'news',
+    "django_elasticsearch_dsl",
 ]
 
+
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,6 +53,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'news_portal.urls'
+# AUTH_USER_MODEL = "authentication.User"
+
+# Elastic Search
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": os.getenv('ELASTIC_SEARCH_HOSTS', '').split()
+    },
+}
 
 TEMPLATES = [
     {
