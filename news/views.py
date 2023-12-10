@@ -6,8 +6,16 @@ from drf_yasg import openapi
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-
-class NewsViewSet(viewsets.ModelViewSet):
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Список новостей'),
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список новостей',
+    operation_description='Возвращает список всех новостей.',
+    tags=['Новости'],
+)
+class NewsList(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех новостей.
 
@@ -20,27 +28,22 @@ class NewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get']
 
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(description='Список новостей'),
-            500: 'Внутренняя ошибка сервера',
-        },
-        operation_summary='Список новостей',
-        operation_description='Возвращает список всех новостей.',
-        tags=['Новости'],
-    )
-
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
 
         tags = self.request.query_params.get('tags', None)
         categories = self.request.query_params.get('category', None)
+        custom_url = self.request.query_params.get('url', None)
+        
         if tags is not None:
             for tag in tags.split(','):
                 queryset = queryset.filter(tags__title=tag)
         elif categories is not None:
             for category in categories.split(','):
                 queryset = queryset.filter(categories__title=category)
+        
+        if custom_url is not None:
+            queryset = queryset.filter(custom_url=custom_url)
         # elif tags is not None and category is not None:
         #     for category in categories.split(','):
         #         queryset = queryset.filter(categories__title=category)
@@ -58,10 +61,18 @@ class NewsViewSet(viewsets.ModelViewSet):
         serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
 
         return Response(serializer.data)
+    
 
-
-
-class ApprovedNewsViewSet(viewsets.ModelViewSet):
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Список новостей подтвержденных админом'),
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список новостей',
+    operation_description='Возвращает список всех новостей подтвержденных админом.',
+    tags=['Новости'],
+)
+class ApprovedNewsList(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех новостей которые подтвердженные админом.
 
@@ -74,20 +85,12 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
 
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(description='Список новостей подтвержденных админом'),
-            500: 'Внутренняя ошибка сервера',
-        },
-        operation_summary='Список новостей',
-        operation_description='Возвращает список всех новостей подтвержденных админом.',
-        tags=['Новости'],
-    )
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
 
         tags = self.request.query_params.get('tags', None)
         categories = self.request.query_params.get('category', None)
+        custom_url = self.request.query_params.get('url', None)
 
         if tags is not None:
             for tag in tags.split(','):
@@ -95,6 +98,10 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         elif categories is not None:
             for category in categories.split(','):
                 queryset = queryset.filter(categories__title=category)
+        
+        if custom_url is not None:
+            queryset = queryset.filter(custom_url=custom_url)
+
         # elif tags is not None and category is not None:
         #     for category in categories.split(','):
         #         queryset = queryset.filter(categories__title=category)
@@ -103,7 +110,8 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         #         queryset = queryset.filter(tags__title=tag)
         return queryset
 
-    def retrieve(self, request, *args, **kwargs):
+
+    def retrieve(self, request):
         """
             Возвращает новость по айди.
         """
@@ -113,9 +121,18 @@ class ApprovedNewsViewSet(viewsets.ModelViewSet):
         serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
 
 
-        return Response(serializer.data)
-    
-class TagsViewSet(viewsets.ModelViewSet):
+        return Response(serializer.data) 
+
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Список тегов'),
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список тегов',
+    operation_description='Возвращает список всех тегов.',
+    tags=['Теги'],
+)
+class TagsList(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех тегов.
 
@@ -126,15 +143,7 @@ class TagsViewSet(viewsets.ModelViewSet):
     serializer_class = TagsSerializer
     http_method_names = ['get']
 
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(description='Список тегов'),
-            500: 'Внутренняя ошибка сервера',
-        },
-        operation_summary='Список тегов',
-        operation_description='Возвращает список всех тегов.',
-        tags=['Теги'],
-    )
+
     def get(self, request, *args, **kwargs):
         """
             Возвращает список тегов.
@@ -145,7 +154,16 @@ class TagsViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-class CategoriesViewSet(viewsets.ModelViewSet):
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Список категорий'),
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список тегов',
+    operation_description='Возвращает список всех категорий.',
+    tags=['Категория'],
+)
+class CategoriesList(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех категорий.
 
@@ -156,15 +174,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriesSerializer
     http_method_names = ['get']
 
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(description='Список категорий'),
-            500: 'Внутренняя ошибка сервера',
-        },
-        operation_summary='Список тегов',
-        operation_description='Возвращает список всех категорий.',
-        tags=['Категория'],
-    )
+
     def get(self, request, *args, **kwargs):
         """
             Возвращает список категорий.
@@ -175,7 +185,16 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-class AuthorViewSet(viewsets.ModelViewSet):
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Список авторов'),
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список авторов',
+    operation_description='Возвращает список всех авторов.',
+    tags=['Новости'],
+)
+class AuthorList(viewsets.ModelViewSet):
     """
     API endpoint для просмотра списка всех авторов.
 
@@ -186,15 +205,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     http_method_names = ['get']
 
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(description='Список авторов'),
-            500: 'Внутренняя ошибка сервера',
-        },
-        operation_summary='Список авторов',
-        operation_description='Возвращает список всех авторов.',
-        tags=['Новости'],
-    )
+
     def get(self, request, *args, **kwargs):
         """
             Возвращает список авторов.

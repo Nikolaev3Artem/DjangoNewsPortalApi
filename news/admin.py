@@ -55,8 +55,9 @@ class NewsAdmin(admin.ModelAdmin):
 
         if obj.custom_url:
             temp_url = ''
-            temp_url = temp_url.join(
-                var for var in obj.custom_url if var.isalnum())
+            for var in obj.custom_url:
+                if var.isalnum() or var == '-':
+                    temp_url += var
             obj.custom_url = temp_url.lower()
 
         obj.update_date = str(datetime.datetime.now())[0:19]
