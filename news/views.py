@@ -63,6 +63,7 @@ class NewsList(viewsets.ModelViewSet):
 @swagger_auto_schema(
     responses={
         200: openapi.Response(description='Список новостей подтвержденных админом'),
+        400: 'Обьэкт не найден',
         500: 'Внутренняя ошибка сервера',
     },
     operation_summary='Список новостей',
@@ -96,8 +97,18 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             for category in categories.split(','):
                 queryset = queryset.filter(categories__title=category)
         elif tags is not None and category is not None:
-            for category in categories.split(','):
-                queryset = queryset.filter(categories__title=category,tags__title=tag)
+            i = 0
+            category = categories.split(',')
+            tags = tags.split(',')
+            if len(category) > len(tags):
+                while i < len(category):
+                    queryset = queryset.filter(categories__title=category[i],tags__title=tag[i])
+                    i += 1
+            else:
+                while i < len(tags):
+                    queryset = queryset.filter(categories__title=category[i],tags__title=tag[i])
+                    i += 1
+                
         if custom_url is not None:
             queryset = queryset.filter(custom_url=custom_url)
 
@@ -106,7 +117,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
 
     def retrieve(self, request, custom_url):
         """
-            Возвращает новость по айди или по кастомурл.
+            Возвращает новость по айди или по custom_url.
         """
         if custom_url is not None:
             queryset = News.objects.all().filter(custom_url=custom_url)
