@@ -1,6 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer
-from .documents import NewsDocument
+# from .documents import NewsDocument
 from .models import News, Tags, Author, Categories
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -81,7 +81,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
-
+    lookup_field = 'custom_url'
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
 
@@ -104,45 +104,50 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         return queryset
 
 
-    def retrieve(self, request):
+    def retrieve(self, request, custom_url):
         """
-            Возвращает новость по айди.
+            Возвращает новость по айди или по кастомурл.
         """
-
-        instance = self.get_object()
-        
-        serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
-
-
-        return Response(serializer.data) 
+        if custom_url is not None:
+            queryset = News.objects.all().filter(custom_url=custom_url)
+            serializer = SingleNewsSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            instance = self.get_object()
+            
+            serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
+            return Response(data=serializer.data, status=200)
     
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список новостей',
-    operation_description='Возвращает список всех новостей подтвержденных админом.',
-    tags=['Новости'],
-)
-class ApprovedNewsSearch(viewsets.ModelViewSet):
-    """
-    API endpoint для поиска списка среди всех новостей которые подтвердженные админом.
+# @swagger_auto_schema(
+#     responses={
+#         200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
+#         500: 'Внутренняя ошибка сервера',
+#     },
+#     operation_summary='Список новостей',
+#     operation_description='Возвращает список всех новостей подтвержденных админом.',
+#     tags=['Новости'],
+# )
+# class ApprovedNewsSearch(viewsets.ModelViewSet):
+#     """
+#     API endpoint для поиска списка среди всех новостей которые подтвердженные админом.
 
-    GET:
-        Возвращает список всех новостей подтвержденных админом.
-    """
-    queryset = News.objects.all()
-    serializer_class = NewsSerializer
-    document_class = NewsDocument
-    http_method_names = ['get', ]
-    def list(self, request, *args, **kwargs):
-        query = self.request.query_params.get('search', None)
-        if query is not None:
-            s = NewsDocument.search().query("match", title=query)
-            for hit in s:
-                print(hit)
-            return s
+#     GET:
+#         Возвращает список всех новостей подтвержденных админом.
+#     """
+#     queryset = News.objects.all()
+#     serializer_class = NewsSerializer
+#     document_class = NewsDocument
+#     http_method_names = ['get', ]
+#     def list(self, request, *args, **kwargs):
+#         query = self.request.query_params.get('search', None)
+#         if query is not None:
+#             s = NewsDocument.search().query("match", title=query)
+#             for hit in s:
+#                 print(hit)
+#             return s
 
 
 

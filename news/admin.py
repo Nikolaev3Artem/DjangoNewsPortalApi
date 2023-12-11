@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News, Articles, Author, Tags, Categories
+from .models import News, Author, Tags, Categories
 from . import *
 
 def translate_content(data):
