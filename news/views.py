@@ -5,6 +5,7 @@ from .models import News, Tags, Author, Categories
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.response import Response
+import random
 
 @swagger_auto_schema(
     responses={
@@ -59,14 +60,17 @@ class NewsList(viewsets.ModelViewSet):
 
         return queryset
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, custom_url):
         """
-            Возвращает новость по айди.
+            Возврощает новость по custom_url
         """
-        instance = self.get_object()
-        serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
-
-        return Response(serializer.data)
+        if custom_url is not None:
+            queryset = News.objects.all().filter(custom_url=custom_url, is_approved=True)
+            serializer = SingleNewsSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
     
 
 @swagger_auto_schema(
@@ -127,21 +131,61 @@ class ApprovedNewsList(viewsets.ModelViewSet):
 
     def retrieve(self, request, custom_url):
         """
-            Возвращает новость по айди или по custom_url.
+            Возврощает новость по custom_url
         """
         if custom_url is not None:
-            queryset = News.objects.all().filter(custom_url=custom_url)
+            queryset = News.objects.all().filter(custom_url=custom_url, is_approved=True)
             serializer = SingleNewsSerializer(queryset, many=True)
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
             else:
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
-        else:
-            instance = self.get_object()
-            
-            serializer = SingleNewsSerializer(instance, context=self.get_serializer_context())
-            return Response(data=serializer.data, status=200)
     
+
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Список рандомных новостей подтвержденных админом'),
+        400: 'Обьэкт не найден',
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список рандомных новостей',
+    operation_description='Возвращает список рандомных новостей подтвержденных админом.',
+    tags=['Новости'],
+    field_inspectors="Count",
+)
+class RandomApprovedNewsList(viewsets.ModelViewSet):
+    """
+    API endpoint для просмотра списка всех новостей которые подтвердженные админом.
+
+    GET:
+        Возвращает список всех новостей подтвержденных админом.
+    RETRIEVE:
+        Возврощает новость по айди.
+    """
+    queryset = News.objects.all().filter(is_approved=True)
+    serializer_class = NewsSerializer
+    http_method_names = ['get', ]
+
+    def list(self, request):
+        """
+            Возвращает новость по айди или по custom_url.
+        """ 
+        count = self.request.query_params.get('count', None)
+        queryset = News.objects.all()
+        if count is not None:
+            try:
+                queryset = random.choices(queryset, k = int(count))
+                serializer = SingleNewsSerializer(queryset, many=True)
+                return Response(data=serializer.data, status=200)
+            except:
+                return Response(data="Something went wrong", status=500)
+        else:
+            try:
+                queryset = random.choices(queryset, k = 5)
+                serializer = SingleNewsSerializer(queryset, many=True)
+                return Response(data=serializer.data, status=200)
+            except:
+                return Response(data="Something went wrong", status=500)
 # @swagger_auto_schema(
 #     responses={
 #         200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
