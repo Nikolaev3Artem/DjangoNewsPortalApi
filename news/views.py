@@ -149,9 +149,12 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         500: 'Внутренняя ошибка сервера',
     },
     operation_summary='Список рандомных новостей',
-    operation_description='Возвращает список рандомных новостей подтвержденных админом.',
-    tags=['Новости'],
-    field_inspectors="Count",
+    operation_description=
+    """
+        Возвращает список рандомных новостей подтвержденных админом.
+        ?count в запросе, позволяет получить конкретное количество новостей.
+    """,
+    tags=['Рандомные Новости'],
 )
 class RandomApprovedNewsList(viewsets.ModelViewSet):
     """
@@ -164,8 +167,31 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
     """
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
-    http_method_names = ['get', ]
+    http_method_names = ['get']
 
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список рандомных новостей подтвержденных админом'),
+            400: 'Обьэкт не найден',
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список рандомных новостей',
+        operation_description=
+        """
+            Возвращает список рандомных новостей подтвержденных админом.
+            ?count в запросе, позволяет получить конкретное количество новостей.
+        """,
+        tags=['Рандомные Новости'],
+        manual_parameters = [openapi.Parameter(
+            "count",
+            openapi.IN_QUERY,
+            description=("A unique integer identifying the project"),
+            type=openapi.TYPE_INTEGER,
+            required=True,
+        )]
+
+    )
     def list(self, request):
         """
             Возвращает новость по айди или по custom_url.
