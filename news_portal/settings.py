@@ -55,11 +55,16 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'news_portal.urls'
 # AUTH_USER_MODEL = "authentication.User"
 
+
 # Elastic Search
 ELASTICSEARCH_DSL = {
     "default": {
-        "hosts": os.getenv('ELASTIC_SEARCH_HOSTS', '').split()
+        "hosts": os.getenv('ELASTICSEARCH_HOSTS', '').split(),
+        'http_auth':(os.getenv('ELASTICSEARCH_LOGIN', None),os.getenv('ELASTICSEARCH_PASSWORD', None))
     },
+}
+ELASTICSEARCH_INDEX_NAMES = {
+    'news.documents.News': 'News',
 }
 
 TEMPLATES = [

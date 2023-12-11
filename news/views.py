@@ -1,10 +1,10 @@
 from rest_framework import viewsets
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer
+from .documents import NewsDocument
 from .models import News, Tags, Author, Categories
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 
 @swagger_auto_schema(
     responses={
@@ -115,6 +115,36 @@ class ApprovedNewsList(viewsets.ModelViewSet):
 
 
         return Response(serializer.data) 
+    
+@swagger_auto_schema(
+    responses={
+        200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
+        500: 'Внутренняя ошибка сервера',
+    },
+    operation_summary='Список новостей',
+    operation_description='Возвращает список всех новостей подтвержденных админом.',
+    tags=['Новости'],
+)
+class ApprovedNewsSearch(viewsets.ModelViewSet):
+    """
+    API endpoint для поиска списка среди всех новостей которые подтвердженные админом.
+
+    GET:
+        Возвращает список всех новостей подтвержденных админом.
+    """
+    queryset = News.objects.all()
+    serializer_class = NewsSerializer
+    document_class = NewsDocument
+    http_method_names = ['get', ]
+    def list(self, request, *args, **kwargs):
+        query = self.request.query_params.get('search', None)
+        if query is not None:
+            s = NewsDocument.search().query("match", title=query)
+            for hit in s:
+                print(hit)
+            return s
+
+
 
 @swagger_auto_schema(
     responses={
@@ -137,11 +167,11 @@ class TagsList(viewsets.ModelViewSet):
     http_method_names = ['get']
 
 
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
             Возвращает список тегов.
         """
-        queryset = self.filter_queryset(queryset)
+        queryset = self.filter_queryset(self.queryset)
 
         serializer = TagsSerializer(queryset, many=True)
 
@@ -168,11 +198,11 @@ class CategoriesList(viewsets.ModelViewSet):
     http_method_names = ['get']
 
 
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
             Возвращает список категорий.
         """
-        queryset = self.filter_queryset(queryset)
+        queryset = self.filter_queryset(self.queryset)
 
         serializer = CategoriesSerializer(queryset, many=True)
 
@@ -199,11 +229,11 @@ class AuthorList(viewsets.ModelViewSet):
     http_method_names = ['get']
 
 
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """
             Возвращает список авторов.
         """
-        queryset = self.filter_queryset(queryset)
+        queryset = self.filter_queryset(self.queryset)
 
         serializer = AuthorSerializer(queryset, many=True)
 
