@@ -42,8 +42,17 @@ class NewsList(viewsets.ModelViewSet):
             for category in categories.split(','):
                 queryset = queryset.filter(categories__title=category)
         elif tags is not None and category is not None:
-            for category in categories.split(','):
-                queryset = queryset.filter(categories__title=category,tags__title=tag)
+            i = 0
+            category = categories.split(',')
+            tags = tags.split(',')
+            if len(category) > len(tags):
+                while i < len(category):
+                    queryset = queryset.filter(categories__title=category[i],tags__title=tag[i])
+                    i += 1
+            else:
+                while i < len(tags):
+                    queryset = queryset.filter(categories__title=category[i],tags__title=tag[i])
+                    i += 1
         if custom_url is not None:
             queryset = queryset.filter(custom_url=custom_url)
 
