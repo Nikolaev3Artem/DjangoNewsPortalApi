@@ -92,6 +92,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
     lookup_field = 'custom_url'
+
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
 
@@ -189,8 +190,8 @@ class TagsList(viewsets.ModelViewSet):
     """
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    http_method_names = ['get']
-
+    http_method_names = ['get', ]
+    lookup_field = 'title'
 
     def list(self, request, *args, **kwargs):
         """
@@ -201,6 +202,18 @@ class TagsList(viewsets.ModelViewSet):
         serializer = TagsSerializer(queryset, many=True)
 
         return Response(serializer.data)
+    
+    def retrieve(self, request, title):
+        """
+            Возвращает список новосте по заголовку.
+        """
+        if title is not None:
+            queryset = News.objects.all().filter(tags__title=title)
+            serializer = NewsSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     responses={
@@ -221,7 +234,7 @@ class CategoriesList(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     http_method_names = ['get']
-
+    lookup_field = 'title'
 
     def list(self, request, *args, **kwargs):
         """
@@ -232,6 +245,18 @@ class CategoriesList(viewsets.ModelViewSet):
         serializer = CategoriesSerializer(queryset, many=True)
 
         return Response(serializer.data)
+    
+    def retrieve(self, request, title):
+        """
+            Возвращает список новосте по заголовку.
+        """
+        if title is not None:
+            queryset = News.objects.all().filter(categories__title=title)
+            serializer = NewsSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     responses={
