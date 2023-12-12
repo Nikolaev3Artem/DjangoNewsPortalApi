@@ -7,27 +7,11 @@ from drf_yasg import openapi
 from rest_framework.response import Response
 import random
 
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Список новостей'),
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список новостей',
-    operation_description='Возвращает список всех новостей.',
-    tags=['Новости'],
-)
 class NewsList(viewsets.ModelViewSet):
-    """
-    API endpoint для просмотра списка всех новостей.
-
-    GET:
-        Возвращает список всех новостей.
-    RETRIEVE:
-        Возврощает новость по айди.
-    """
     queryset = News.objects.all()
     serializer_class = NewsSerializer
     http_method_names = ['get']
+    lookup_field = 'custom_url'
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -60,12 +44,73 @@ class NewsList(viewsets.ModelViewSet):
 
         return queryset
 
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список всех новостей.'),
+        },
+        operation_summary='Список всех новостей',
+        operation_description=
+        """
+            Возвращает список всех новостей.
+            ?tags - фильтрация новостей по тегам.
+            ?category - фильтрация новостей по категориям.
+            ?url - поиск новости по кастомному урлу.
+        """,
+        tags=['Новости'],
+        manual_parameters = [
+            openapi.Parameter(
+                "tags",
+                openapi.IN_QUERY,
+                description=("Выводит все новости у которых есть этот тег(и)"),
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "category",
+                openapi.IN_QUERY,
+                description=("Выводит все новости у которых есть эта категория(и)"),
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "url",
+                openapi.IN_QUERY,
+                description=("Выводит новость с конкретной урл"),
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Новость.'),
+        },
+        operation_summary='Новость.',
+        operation_description=
+        """
+            Возвращает новость не подтвержденную админом.
+            ?url - поиск новости по кастомному урлу.
+        """,
+        tags=['Новости'],
+    )
+        
     def retrieve(self, request, custom_url):
         """
             Возврощает новость по custom_url
         """
         if custom_url is not None:
-            queryset = News.objects.all().filter(custom_url=custom_url, is_approved=True)
+            queryset = News.objects.all().filter(custom_url=custom_url)
             serializer = SingleNewsSerializer(queryset, many=True)
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
@@ -73,25 +118,7 @@ class NewsList(viewsets.ModelViewSet):
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
     
 
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Список новостей подтвержденных админом'),
-        400: 'Обьэкт не найден',
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список новостей',
-    operation_description='Возвращает список всех новостей подтвержденных админом.',
-    tags=['Новости'],
-)
 class ApprovedNewsList(viewsets.ModelViewSet):
-    """
-    API endpoint для просмотра списка всех новостей которые подтвердженные админом.
-
-    GET:
-        Возвращает список всех новостей подтвержденных админом.
-    RETRIEVE:
-        Возврощает новость по айди.
-    """
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
@@ -127,8 +154,67 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             queryset = queryset.filter(custom_url=custom_url)
 
         return queryset
+    
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список всех новостей подтвержденных админом.'),
+        },
+        operation_summary='Список всех новостей подтвержденных админом',
+        operation_description=
+        """
+            Возвращает список всех новостей подтвержденных админом.
+            ?tags - фильтрация новостей по тегам.
+            ?category - фильтрация новостей по категориям.
+            ?url - поиск новости по кастомному урлу.
+        """,
+        tags=['Новости'],
+        manual_parameters = [
+            openapi.Parameter(
+                "tags",
+                openapi.IN_QUERY,
+                description=("Выводит все новости у которых есть этот тег(и)"),
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "category",
+                openapi.IN_QUERY,
+                description=("Выводит все новости у которых есть эта категория(и)"),
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+            openapi.Parameter(
+                "url",
+                openapi.IN_QUERY,
+                description=("Выводит новость с конкретной урл"),
+                type=openapi.TYPE_STRING,
+                required=False,
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
 
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(   
+        responses={
+            200: openapi.Response(description='Новость.'),
+        },
+        operation_summary='Новость.',
+        operation_description=
+        """
+            Возвращает новость подтвержденную админом.
+            ?url - поиск новости по кастомному урлу.
+        """,
+        tags=['Новости'],
+    )
     def retrieve(self, request, custom_url):
         """
             Возврощает новость по custom_url
@@ -140,31 +226,8 @@ class ApprovedNewsList(viewsets.ModelViewSet):
                 return Response(data=serializer.data, status=200)
             else:
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
-    
-
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Список рандомных новостей подтвержденных админом'),
-        400: 'Обьэкт не найден',
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список рандомных новостей',
-    operation_description=
-    """
-        Возвращает список рандомных новостей подтвержденных админом.
-        ?count в запросе, позволяет получить конкретное количество новостей.
-    """,
-    tags=['Рандомные Новости'],
-)
+        
 class RandomApprovedNewsList(viewsets.ModelViewSet):
-    """
-    API endpoint для просмотра списка всех новостей которые подтвердженные админом.
-
-    GET:
-        Возвращает список всех новостей подтвержденных админом.
-    RETRIEVE:
-        Возврощает новость по айди.
-    """
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get']
@@ -183,16 +246,18 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
             ?count в запросе, позволяет получить конкретное количество новостей.
         """,
         tags=['Рандомные Новости'],
-        manual_parameters = [openapi.Parameter(
-            "count",
-            openapi.IN_QUERY,
-            description=("A unique integer identifying the project"),
-            type=openapi.TYPE_INTEGER,
-            required=True,
-        )]
+        manual_parameters = [
+            openapi.Parameter(
+                "count",
+                openapi.IN_QUERY,
+                description=("A unique integer identifying the project"),
+                type=openapi.TYPE_INTEGER,
+                required=False,
+            )
+        ]
 
     )
-    def list(self, request):
+    def list(self, request):   
         """
             Возвращает новость по айди или по custom_url.
         """ 
@@ -212,6 +277,151 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
                 return Response(data=serializer.data, status=200)
             except:
                 return Response(data="Something went wrong", status=500)
+            
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description=''),
+            400: 'Обьэкт не найден',
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='НЕ РАБОТАЕТ!',
+        tags=['Рандомные Новости'],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+class TagsList(viewsets.ModelViewSet):
+    queryset = Tags.objects.all()
+    serializer_class = TagsSerializer
+    http_method_names = ['get', ]
+    lookup_field = 'title'
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список всех тегов.'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список всех тегов',
+        operation_description='Возвращает список всех тегов.',
+        tags=['Теги'],
+    )
+
+    def list(self, request, *args, **kwargs):
+        """
+            Возвращает список тегов.
+        """
+        queryset = self.filter_queryset(self.queryset)
+
+        serializer = TagsSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список новостей.'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Возвращает список новостей по заголовку тега',
+        tags=['Теги'],
+    )
+    def retrieve(self, request, title):
+        """
+            Возвращает список новосте по заголовку.
+        """
+        if title is not None:
+            queryset = News.objects.all().filter(tags__title=title)
+            serializer = NewsSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+
+class CategoriesList(viewsets.ModelViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    http_method_names = ['get']
+    lookup_field = 'title'
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список категорий'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список всех категорий',
+        tags=['Категории'],
+    )
+    def list(self, request, *args, **kwargs):
+        """
+            Возвращает список категорий.
+        """
+        queryset = self.filter_queryset(self.queryset)
+
+        serializer = CategoriesSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+      responses={
+            200: openapi.Response(description='Список новостей.'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Список новостей по заголовку категории',
+        tags=['Категории'],
+    )
+    def retrieve(self, request, title):
+        """
+            Возвращает список новостей по заголовку категорий.
+        """
+        if title is not None:
+            queryset = News.objects.all().filter(categories__title=title)
+            serializer = NewsSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+
+class AuthorList(viewsets.ModelViewSet):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    http_method_names = ['get']
+    lookup_field = 'name'
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список авторов'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Возвращает список всех авторов.',
+        tags=['Авторы'],
+    )
+    def list(self, request, *args, **kwargs):
+        """
+            Возвращает список всех авторов.
+        """
+        queryset = self.filter_queryset(self.queryset)
+
+        serializer = AuthorSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список авторов'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Возвращает список новостей конкретного автора по его имени.',
+        tags=['Авторы'],
+    )
+    def retrieve(self, request, name):
+        """
+            Возвращает список новостей конкретного автора по его имени.
+        """
+        queryset = News.objects.all().filter(author__name=name)
+
+        serializer = NewsSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
 # @swagger_auto_schema(
 #     responses={
 #         200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
@@ -239,122 +449,3 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
 #             for hit in s:
 #                 print(hit)
 #             return s
-
-
-
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Список тегов'),
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список тегов',
-    operation_description='Возвращает список всех тегов.',
-    tags=['Теги'],
-)
-class TagsList(viewsets.ModelViewSet):
-    """
-    API endpoint для просмотра списка всех тегов.
-
-    GET:
-        Возвращает список всех тегов.
-    """
-    queryset = Tags.objects.all()
-    serializer_class = TagsSerializer
-    http_method_names = ['get', ]
-    lookup_field = 'title'
-
-    def list(self, request, *args, **kwargs):
-        """
-            Возвращает список тегов.
-        """
-        queryset = self.filter_queryset(self.queryset)
-
-        serializer = TagsSerializer(queryset, many=True)
-
-        return Response(serializer.data)
-    
-    def retrieve(self, request, title):
-        """
-            Возвращает список новосте по заголовку.
-        """
-        if title is not None:
-            queryset = News.objects.all().filter(tags__title=title)
-            serializer = NewsSerializer(queryset, many=True)
-            if queryset.count() != 0:
-                return Response(data=serializer.data, status=200)
-            else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
-
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Список категорий'),
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список тегов',
-    operation_description='Возвращает список всех категорий.',
-    tags=['Категория'],
-)
-class CategoriesList(viewsets.ModelViewSet):
-    """
-    API endpoint для просмотра списка всех категорий.
-
-    GET:
-        Возвращает список всех категорий.
-    """
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
-    http_method_names = ['get']
-    lookup_field = 'title'
-
-    def list(self, request, *args, **kwargs):
-        """
-            Возвращает список категорий.
-        """
-        queryset = self.filter_queryset(self.queryset)
-
-        serializer = CategoriesSerializer(queryset, many=True)
-
-        return Response(serializer.data)
-    
-    def retrieve(self, request, title):
-        """
-            Возвращает список новосте по заголовку.
-        """
-        if title is not None:
-            queryset = News.objects.all().filter(categories__title=title)
-            serializer = NewsSerializer(queryset, many=True)
-            if queryset.count() != 0:
-                return Response(data=serializer.data, status=200)
-            else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
-
-@swagger_auto_schema(
-    responses={
-        200: openapi.Response(description='Список авторов'),
-        500: 'Внутренняя ошибка сервера',
-    },
-    operation_summary='Список авторов',
-    operation_description='Возвращает список всех авторов.',
-    tags=['Новости'],
-)
-class AuthorList(viewsets.ModelViewSet):
-    """
-    API endpoint для просмотра списка всех авторов.
-
-    GET:
-        Возвращает список всех авторов.
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    http_method_names = ['get']
-
-
-    def list(self, request, *args, **kwargs):
-        """
-            Возвращает список авторов.
-        """
-        queryset = self.filter_queryset(self.queryset)
-
-        serializer = AuthorSerializer(queryset, many=True)
-
-        return Response(serializer.data)
