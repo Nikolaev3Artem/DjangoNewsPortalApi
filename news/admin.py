@@ -48,6 +48,7 @@ class NewsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if obj.is_approved:
             if not obj.translated:
+                obj.translated = True
                 translate = translate_text([obj.title, obj.description])
                 obj.title = translate['key_1']
                 obj.description = translate['key_2']
