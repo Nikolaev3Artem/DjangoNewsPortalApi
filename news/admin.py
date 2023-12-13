@@ -47,11 +47,11 @@ class NewsAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if obj.is_approved:
-            translate = translate_text([obj.title, obj.description])
-            obj.is_approved = True
-            obj.title = translate['key_1']
-            obj.description = translate['key_2']
-            obj.content = translate_content(obj.content)
+            if not obj.translated:
+                translate = translate_text([obj.title, obj.description])
+                obj.title = translate['key_1']
+                obj.description = translate['key_2']
+                obj.content = translate_content(obj.content)
 
         if obj.custom_url:
             temp_url = ''

@@ -79,6 +79,7 @@ class News(models.Model):
     rating = models.FloatField(_('Рейтинг'), default=5)
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
+    translated = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Новина"
