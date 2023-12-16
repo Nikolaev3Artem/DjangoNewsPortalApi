@@ -262,7 +262,8 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
             Возвращает новость по айди или по custom_url.
         """ 
         count = self.request.query_params.get('count', None)
-        queryset = News.objects.all()
+        queryset = News.objects.all().filter(is_approved=True)
+        
         if count is not None:
             try:
                 queryset = random.choices(queryset, k = int(count))

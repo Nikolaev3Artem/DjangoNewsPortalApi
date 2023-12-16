@@ -53,7 +53,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'news_portal.urls'
-# AUTH_USER_MODEL = "authentication.User"
 
 
 # Elastic Search
@@ -124,6 +123,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# AUTH_USER_MODEL = "authentication.User" 
 
 
 # Internationalization
