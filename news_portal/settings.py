@@ -24,22 +24,42 @@ GOOGLE_OAUTH2_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_OAUTH2_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 # Application definition
+
+SITE_ID = 1
+
 INSTALLED_APPS = [
+    'news',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'drf_yasg',
     'rest_framework',
     'rest_framework_swagger',
     'drf_spectacular',
     'django_filters',
-    'news',
+    
     "django_elasticsearch_dsl",
+    "django.contrib.sites",
+
+    'django_rest_allauth',
+    'rest_framework.authtoken',
+    'corsheaders',
 ]
 
+SOCIALACCOUNT_PROVIDERS = {
+    "google":{
+        "SCOPE":{
+            "profile",
+            "email"
+        },
+        "AUTH_PARAMS":{"access_type":"online"}
+    }
+}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -50,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'news_portal.urls'
@@ -157,6 +178,13 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+
+        'rest_framework.permissions.IsAuthenticated','rest_framework.permissions.AllowAny' )
 }
 
 SWAGGER_SETTINGS = {
@@ -196,3 +224,5 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ORIGIN_ALLOW_ALL = True  # установить False в продакшн
 # конец настройки для CORS
+CORS_ALLOW_CREDENTIALS = True
+
