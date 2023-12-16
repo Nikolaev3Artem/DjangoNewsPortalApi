@@ -1,10 +1,12 @@
 from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer
 # from .documents import NewsDocument
 from .models import News, Tags, Author, Categories
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from rest_framework.response import Response
 import random
 
 class NewsList(viewsets.ModelViewSet):
@@ -12,7 +14,8 @@ class NewsList(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get']
     lookup_field = 'custom_url'
-
+    permission_classes = (AllowAny,)
+    
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
 
@@ -123,6 +126,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
     lookup_field = 'custom_url'
+    permission_classes = (AllowAny,)
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -231,7 +235,7 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get']
-
+    permission_classes = (AllowAny,)
 
     @swagger_auto_schema(
         responses={
@@ -296,6 +300,7 @@ class TagsList(viewsets.ModelViewSet):
     serializer_class = TagsSerializer
     http_method_names = ['get', ]
     lookup_field = 'title'
+    permission_classes = (AllowAny,)
 
     @swagger_auto_schema(
         responses={
@@ -342,6 +347,7 @@ class CategoriesList(viewsets.ModelViewSet):
     serializer_class = CategoriesSerializer
     http_method_names = ['get']
     lookup_field = 'title'
+    permission_classes = (AllowAny,)
 
     @swagger_auto_schema(
         responses={
@@ -386,7 +392,8 @@ class AuthorList(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     http_method_names = ['get']
     lookup_field = 'name'
-
+    permission_classes = (AllowAny,)
+    
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список авторов'),
