@@ -63,7 +63,7 @@ class News(models.Model):
     news_creator = models.CharField(_('Власник(и) новини'), max_length=300, blank=True, null=True)
     author = models.ForeignKey(
         Author, on_delete=models.CASCADE, null=True, blank=True)
-    link = models.CharField(_('Посилання'), max_length=200, null=True, unique=True)
+    link = models.CharField(_('Посилання'), max_length=200,blank=True, null=True, unique=True)
     image_url = models.CharField(_('Посилання на картинку'), max_length=500, null=True, blank=True)
     description = models.TextField(_('Опис'), max_length=800, null=True, blank=True)
     pub_date = models.CharField(_('Дата публікації'), max_length=100, null=True, blank=True)
@@ -73,13 +73,13 @@ class News(models.Model):
     custom_url = models.CharField(
         _('Кастомне посилання'), 
         max_length=50, default=None, unique=True, null=True)
-    tags = models.ManyToManyField(Tags)
-    categories = models.ManyToManyField(Categories, blank=False)
-    time_to_read = models.IntegerField(_('Час прочитання'), blank=False, null=True)
+    tags = models.ManyToManyField(Tags,blank=True)
+    categories = models.ManyToManyField(Categories, blank=True)
+    time_to_read = models.IntegerField(_('Час прочитання'), blank=True, null=True)
     rating = models.FloatField(_('Рейтинг'), default=5)
-    img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True)
+    img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
-    translated = models.BooleanField(default=False)
+    translated = models.BooleanField(default=False, editable=False)
 
     class Meta:
         verbose_name = "Новина"
@@ -87,3 +87,14 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
+
+class TranslationKeys(models.Model):
+    key = models.CharField(_('Ключ'),max_length=2000, null=True)
+    requests = models.IntegerField(_('Використано запросів'), default=0)
+    active = models.BooleanField(_('Ключ який використовується зараз'), default=False)
+    class Meta:
+        verbose_name = "Ключ для перекладу"
+        verbose_name_plural = "Ключі для перекладу"
+
+    def __str__(self):
+        return self.key

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from news.models import News
+from news.models import News, TranslationKeys
 import requests
 import os
 from dotenv import load_dotenv
@@ -17,10 +17,12 @@ def text_to_time(text):
 class Command(BaseCommand):
     help = 'Parsing news from newsdata.io'
     API_KEY = os.getenv('NEWS_API_KEY')
+    
     def handle(self, *args, **options):
         try:                
             url = f'https://newsdata.io/api/1/news?apikey={self.API_KEY}&category=technology&language=en'
             response = requests.get(url)
+            api_key_requests_counter += 1
             data = response.json()
             for news in data['results']:
                 if news == "message":

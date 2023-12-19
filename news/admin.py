@@ -1,49 +1,67 @@
 from django.contrib import admin
-from .models import News, Author, Tags, Categories
-from . import *
+from .models import News, Author, Tags, Categories, TranslationKeys
+import os
+from dotenv import load_dotenv
+import requests
+import datetime
 
+load_dotenv()
+# API_KEY = os.getenv('TRANSLATE_API_KEY')
+API_HOST = os.getenv('TRANSLATE_API_HOST')
+api_key = TranslationKeys.objects.all().filter(active=True)
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db",
-               "X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
+    headers = {"X-RapidAPI-Key": api_key.key,
+            "X-RapidAPI-Host": API_HOST}
     i = 0
+    requests_counter = 0
     translated_content = ""
+    
     while i < len(data):
         querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
         response = requests.get(url, headers=headers, params=querystring)
         translated_content += response.json()['translated_text']['uk']
         i += 1000
-
+        requests_counter += 1
+    api_key[0].requests = requests_counter
+    api_key[0].save()
+    print(api_key[0].requests)
+    print(requests_counter)
     return translated_content
-
+ 
 def translate_text(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    if len(data) == 2:
-        querystring = {
-            "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
-    else:
-        querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": "9efa18f1f7msh7098d610c833236p1783fbjsn7ed2044991db",
-               "X-RapidAPI-Host": "nlp-translation.p.rapidapi.com"}
+    try:
+        url = "https://nlp-translation.p.rapidapi.com/v1/translate"
+        if len(data) == 2:
+            querystring = {
+                "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
+        else:
+            querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
+        headers = {"X-RapidAPI-Key": api_key.key,
+                "X-RapidAPI-Host": API_HOST}
 
-    response = requests.get(url, headers=headers, params=querystring)
-
-    result = {}
-    temp_word = ""
-    k = 0
-    for i in response.json()['translated_text']['uk']:
-        if i == "|":
-            k += 1
-            result[f'key_{k}'] = temp_word
-            temp_word = ""
-            continue
-        temp_word += i
+        response = requests.get(url, headers=headers, params=querystring)
+        api_key[0].requests += 1
+        result = {}
+        temp_word = ""
+        k = 0
+        for i in response.json()['translated_text']['uk']:
+            if i == "|":
+                k += 1
+                result[f'key_{k}'] = temp_word
+                temp_word = ""
+                continue
+            temp_word += i
+        api_key[0].save()
+    finally:
+        api_key[0].save()
     return result
 
 
 class NewsAdmin(admin.ModelAdmin):
     list_display = ["title", 'country', "is_approved"]
     ordering = ["is_approved"]
+    readonly_fields=('translated',)
 
     def save_model(self, request, obj, form, change):
         if obj.is_approved:
@@ -64,7 +82,6 @@ class NewsAdmin(admin.ModelAdmin):
         obj.update_date = str(datetime.datetime.now())[0:19]
         super().save_model(request, obj, form, change)
 
-
 class ArticlesAdmin(admin.ModelAdmin):
     pass
 
@@ -80,6 +97,8 @@ class TagsAdmin(admin.ModelAdmin):
 class CategoriesAdmin(admin.ModelAdmin):
     pass
 
+class TranslationKeysAdmin(admin.ModelAdmin):
+    readonly_fields=('requests',)
 
 admin.site.register(News, NewsAdmin)
 # admin.site.register(Articles, ArticlesAdmin)
@@ -87,3 +106,4 @@ admin.site.register(News, NewsAdmin)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Tags, TagsAdmin)
 admin.site.register(Categories, CategoriesAdmin)
+admin.site.register(TranslationKeys, TranslationKeysAdmin)
