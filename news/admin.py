@@ -11,7 +11,7 @@ API_HOST = os.getenv('TRANSLATE_API_HOST')
 api_key = TranslationKeys.objects.all().filter(active=True)
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": api_key.key,
+    headers = {"X-RapidAPI-Key": api_key[0].key,
             "X-RapidAPI-Host": API_HOST}
     i = 0
     requests_counter = 0
@@ -37,7 +37,7 @@ def translate_text(data):
                 "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
         else:
             querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-        headers = {"X-RapidAPI-Key": api_key.key,
+        headers = {"X-RapidAPI-Key": api_key[0].key,
                 "X-RapidAPI-Host": API_HOST}
 
         response = requests.get(url, headers=headers, params=querystring)
