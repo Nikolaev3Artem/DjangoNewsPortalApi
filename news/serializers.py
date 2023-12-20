@@ -1,4 +1,4 @@
-from .models import News, Author, Tags, Categories
+from .models import News, Author, Tags, Categories, NewsUser
 from rest_framework import serializers
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -138,3 +138,9 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
                   'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url', 'is_approved')
         depth = 2
+
+class NewsUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewsUser
+        fields = ('first_name', 'surname', 'profile_image', 'email')
+        depth = 1

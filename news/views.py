@@ -2,12 +2,13 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer
+from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer
 # from .documents import NewsDocument
-from .models import News, Tags, Author, Categories
+from .models import News, Tags, Author, Categories, NewsUser
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import random
+import json
 
 class NewsList(viewsets.ModelViewSet):
     queryset = News.objects.all()
@@ -429,6 +430,64 @@ class AuthorList(viewsets.ModelViewSet):
         serializer = NewsSerializer(queryset, many=True)
 
         return Response(serializer.data)
+
+class NewsUserViewSet(viewsets.ModelViewSet):
+    queryset = NewsUser.objects.all()
+    serializer_class = NewsUserSerializer
+    http_method_names = ['get','post']
+    lookup_field = 'email'
+    permission_classes = (AllowAny,)
+    
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Список пользователей'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Возвращает список всех пользователей.',
+        tags=['Пользователи'],
+    )
+    def list(self, request, *args, **kwargs):
+        """
+            Возвращает список всех авторов.
+        """
+        queryset = self.filter_queryset(self.queryset)
+
+        serializer = NewsUserSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Возврощает пользователя'),
+            500: 'Внутренняя ошибка сервера',
+        },
+        operation_summary='Возвращает пользователя по его емейлу.',
+        tags=['Пользователи'],
+    )
+    def retrieve(self, request, email):
+        """
+            Возвращает пользователя по его емейлу.
+        """
+        queryset = NewsUser.objects.all().filter(email=email)
+
+        serializer = NewsUserSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+    
+    def create(self, request):
+        user_data = request.data
+        if user_data['email'] != "string":
+            if not NewsUser.objects.all().filter(email=user_data['email']):
+                NewsUser.objects.create(
+                    first_name = user_data['first_name'],
+                    surname = user_data['surname'],
+                    profile_image = user_data['profile_image'],
+                    email = user_data['email'],
+                )
+                return Response(data="User created", status=status.HTTP_201_CREATED)
+            else:
+                return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
+        return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
 # @swagger_auto_schema(
 #     responses={
