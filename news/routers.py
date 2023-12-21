@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from .views import NewsList, ApprovedNewsList, TagsList, CategoriesList, AuthorList, RandomApprovedNewsList, NewsUserViewSet
+from .views import NewsList, ApprovedNewsList, TagsList, CategoriesList, AuthorList, RandomApprovedNewsList, NewsUserViewSet, CommentList
 
 router = DefaultRouter()
 router.register(r'ApprovedNews', ApprovedNewsList, basename="ApprovedNews")
@@ -11,3 +11,4 @@ router.register(r'Tags', TagsList, basename="Tags")
 router.register(r'Categories', CategoriesList, basename="Categories")
 router.register(r'Authors', AuthorList, basename="Authors")
 router.register(r'NewsUser', NewsUserViewSet, basename="NewsUser")
+router.register(r'Comments', CommentList, basename="CommentList")

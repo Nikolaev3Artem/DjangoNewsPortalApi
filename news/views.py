@@ -2,9 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer
+from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer
 # from .documents import NewsDocument
-from .models import News, Tags, Author, Categories, NewsUser
+from .models import News, Tags, Author, Categories, NewsUser, Comment
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import random
@@ -488,6 +488,68 @@ class NewsUserViewSet(viewsets.ModelViewSet):
             else:
                 return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
         return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+
+class CommentList(viewsets.ModelViewSet):
+    """
+    Получение списка всех комментариев и создание нового комментария.
+    """
+    serializer_class = CommentSerializer
+    http_method_names = ['get', 'post']
+    permission_classes = (AllowAny,)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name='post_id',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='ID поста, для которого нужно получить комментарии'
+            )
+        ],
+        operation_summary='Получение списка всех комментариев и создание нового комментария',
+        operation_description='Возвращает список всех комментариев, если `post_id` не передан. Если `post_id` передан, то возвращает комментарии только для этого поста. ',
+        tags=['Коментарии'],
+    )
+    def get_queryset(self):
+        """
+        Возвращает комментарии к конкретному посту, если id поста передан в параметрах запроса.
+        """
+        queryset = Comment.objects.all()
+        news_id = self.kwargs.get('news_id')
+        if news_id:
+            queryset = queryset.filter(news__id=news_id)
+        return queryset
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name='news_id',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='ID поста, для которого нужно получить комментарии'
+            ),
+            openapi.Parameter(
+                name='author_email',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='ID поста, для которого нужно получить комментарии'
+            ),
+            openapi.Parameter(
+                name='comment_body',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='ID поста, для которого нужно получить комментарии'
+            ),
+        ],
+        operation_summary='Создание нового комментария',
+        operation_description='Создает новый комментарий к посту с автором текущим пользователем.',
+        tags=['Коментарии'],
+    )
+    def perform_create(self, serializer):
+        """
+        Создает новый комментарий к посту с автором текущим пользователем.
+        """
+        serializer.save()
 
 # @swagger_auto_schema(
 #     responses={

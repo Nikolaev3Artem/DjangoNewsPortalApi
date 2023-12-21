@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News, Author, Tags, Categories, TranslationKeys
+from .models import News, Author, Tags, Categories, TranslationKeys, NewsUser
 import os
 from dotenv import load_dotenv
 import requests
@@ -97,6 +97,10 @@ class TagsAdmin(admin.ModelAdmin):
 class CategoriesAdmin(admin.ModelAdmin):
     pass
 
+class NewsUserAdmin(admin.ModelAdmin):
+    pass
+
+
 class TranslationKeysAdmin(admin.ModelAdmin):
     readonly_fields=('requests',)
 
@@ -107,3 +111,4 @@ admin.site.register(Author, AuthorAdmin)
 admin.site.register(Tags, TagsAdmin)
 admin.site.register(Categories, CategoriesAdmin)
 admin.site.register(TranslationKeys, TranslationKeysAdmin)
+admin.site.register(NewsUser, NewsUserAdmin)

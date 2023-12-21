@@ -106,10 +106,19 @@ class NewsUser(models.Model):
     surname = models.CharField(_('Фамилия'),max_length=100, null=True, blank=True)
     profile_image = models.CharField(_('Картинка профиля'),max_length=500, null=True, blank=True)
     email = models.CharField(_('Емейл'),max_length=100, null=False)
-    
+
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
     def __str__(self):
         return self.email
+
+class Comment(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(NewsUser, related_name='comments', on_delete=models.CASCADE)
+    news = models.ForeignKey('News', related_name='comments', on_delete=models.CASCADE)
+    body = models.TextField(blank=False)
+    
+    def __str__(self):
+        return self.author

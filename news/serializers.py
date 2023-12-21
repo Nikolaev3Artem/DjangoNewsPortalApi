@@ -1,4 +1,4 @@
-from .models import News, Author, Tags, Categories, NewsUser
+from .models import News, Author, Tags, Categories, NewsUser, Comment
 from rest_framework import serializers
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -142,5 +142,17 @@ class SingleNewsSerializer(serializers.ModelSerializer):
 class NewsUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsUser
-        fields = ('first_name', 'surname', 'profile_image', 'email')
+        fields = ('id','first_name', 'surname', 'profile_image', 'email')
         depth = 1
+
+class CommentSerializer(serializers.ModelSerializer):
+    """
+        Сериализатор для модели Comment.
+
+        Содержит поля для преобразования Comment в JSON-формат, а также методы
+        для получения ответов на комментарий.
+    """
+    
+    class Meta:
+        model = Comment
+        fields = ['id', 'body', 'author', 'news']
