@@ -277,12 +277,12 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
             except:
                 return Response(data="Something went wrong", status=500)
         else:
-            try:
-                queryset = random.choices(queryset, k = 5)
-                serializer = SingleNewsSerializer(queryset, many=True)
-                return Response(data=serializer.data, status=200)
-            except:
-                return Response(data="Something went wrong", status=500)
+            # try:
+            queryset = random.choices(queryset, k = 5)
+            serializer = SingleNewsSerializer(queryset, many=True)
+            return Response(data=serializer.data, status=200)
+            # except:
+            #     return Response(data="Something went wrong", status=500)
             
     @swagger_auto_schema(
         responses={
@@ -448,9 +448,9 @@ class NewsUserViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         """
-            Возвращает список всех авторов.
+            Возвращает список всех пользователей.
         """
-        queryset = self.filter_queryset(self.queryset)
+        queryset = self.queryset
 
         serializer = NewsUserSerializer(queryset, many=True)
 
@@ -461,14 +461,14 @@ class NewsUserViewSet(viewsets.ModelViewSet):
             200: openapi.Response(description='Возврощает пользователя'),
             500: 'Внутренняя ошибка сервера',
         },
-        operation_summary='Возвращает пользователя по его емейлу.',
+        operation_summary='Возвращает пользователя по его емейлу.(Не работает пока что)',
         tags=['Пользователи'],
     )
     def retrieve(self, request, email):
         """
             Возвращает пользователя по его емейлу.
         """
-        queryset = NewsUser.objects.all().filter(email=email)
+        queryset = NewsUser.objects.get(email=email)
 
         serializer = NewsUserSerializer(queryset, many=True)
 
@@ -490,67 +490,73 @@ class NewsUserViewSet(viewsets.ModelViewSet):
         return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
 class CommentList(viewsets.ModelViewSet):
-    """
-    Получение списка всех комментариев и создание нового комментария.
-    """
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post']
     permission_classes = (AllowAny,)
-
+    lookup_field = "news__id"
     @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                name='post_id',
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_INTEGER,
-                description='ID поста, для которого нужно получить комментарии'
-            )
-        ],
-        operation_summary='Получение списка всех комментариев и создание нового комментария',
-        operation_description='Возвращает список всех комментариев, если `post_id` не передан. Если `post_id` передан, то возвращает комментарии только для этого поста. ',
+        operation_summary='Получение списка всех комментариев к конкретному посту',
+        operation_description='Возвращает комментарии к конкретному посту.',
         tags=['Коментарии'],
     )
-    def get_queryset(self):
-        """
-        Возвращает комментарии к конкретному посту, если id поста передан в параметрах запроса.
-        """
+    def retrieve(self, request, news__id):
         queryset = Comment.objects.all()
-        news_id = self.kwargs.get('news_id')
-        if news_id:
-            queryset = queryset.filter(news__id=news_id)
-        return queryset
+        queryset = queryset.filter(news__id=news__id)
+        serializer = CommentSerializer(queryset, many=True)
+
+        return Response(serializer.data)
+    
 
     @swagger_auto_schema(
+        operation_summary='Создание нового комментария',
+        operation_description='Создает новый комментарий к посту с автором текущим пользователем.',
+        tags=['Коментарии'],
         manual_parameters=[
             openapi.Parameter(
                 name='news_id',
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_INTEGER,
-                description='ID поста, для которого нужно получить комментарии'
+                description='ID поста, для которого нужно получить комментарии',
+                required=True,
             ),
             openapi.Parameter(
                 name='author_email',
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description='ID поста, для которого нужно получить комментарии'
+                description='Емейл автора который выставляет пост.',
+                required=True,
             ),
             openapi.Parameter(
                 name='comment_body',
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description='ID поста, для которого нужно получить комментарии'
+                description='Текст комментария',
+                required=True,
             ),
         ],
-        operation_summary='Создание нового комментария',
-        operation_description='Создает новый комментарий к посту с автором текущим пользователем.',
-        tags=['Коментарии'],
     )
-    def perform_create(self, serializer):
-        """
-        Создает новый комментарий к посту с автором текущим пользователем.
-        """
-        serializer.save()
+    def create(self, request):
 
+        news_id = self.request.query_params.get('news_id', None)
+        author_email = self.request.query_params.get('author_email', None)
+        body = self.request.query_params.get('comment_body', None)
+
+        try:
+            author = NewsUser.objects.get(email=author_email)
+        except(NewsUser.DoesNotExist):
+            return Response(data="User is not found!", status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            single_news = News.objects.get(id=news_id)
+        except(News.DoesNotExist):
+            return Response(data="News is not found!", status=status.HTTP_404_NOT_FOUND)
+        
+        Comment.objects.create(
+            body = body,
+            author = author,
+            news = single_news,
+        )
+        return Response(data="Comment posted", status=status.HTTP_201_CREATED)
 # @swagger_auto_schema(
 #     responses={
 #         200: openapi.Response(description='Поиск по новостям подтвержденных админом'),

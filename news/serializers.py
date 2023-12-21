@@ -98,9 +98,9 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url', 'is_approved')
-        depth = 1
+        fields = ['id', 'title','author', 'link', 'image_url', 'description', 'pub_date',
+                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url', 'is_approved']
+        depth = 2
 
 
 class SingleNewsSerializer(serializers.ModelSerializer):
@@ -135,8 +135,8 @@ class SingleNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ('id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url', 'is_approved')
+        fields = ['id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
+                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url', 'is_approved']
         depth = 2
 
 class NewsUserSerializer(serializers.ModelSerializer):
@@ -152,7 +152,8 @@ class CommentSerializer(serializers.ModelSerializer):
         Содержит поля для преобразования Comment в JSON-формат, а также методы
         для получения ответов на комментарий.
     """
-    
+
     class Meta:
         model = Comment
-        fields = ['id', 'body', 'author', 'news']
+        fields = ['id', 'body', 'author', 'news_id']
+        depth = 2
