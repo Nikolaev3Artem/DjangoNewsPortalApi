@@ -6,7 +6,6 @@ import requests
 import datetime
 
 load_dotenv()
-# API_KEY = os.getenv('TRANSLATE_API_KEY')
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 api_key = TranslationKeys.objects.all().filter(active=True)
 def translate_content(data):
@@ -23,38 +22,35 @@ def translate_content(data):
         translated_content += response.json()['translated_text']['uk']
         i += 1000
         requests_counter += 1
-    api_key[0].requests = requests_counter
-    api_key[0].save()
-    print(api_key[0].requests)
-    print(requests_counter)
+    requests_counter += api_key[0].requests
+    api_key.update(requests = requests_counter)
+
     return translated_content
  
 def translate_text(data):
-    try:
-        url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-        if len(data) == 2:
-            querystring = {
-                "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
-        else:
-            querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-        headers = {"X-RapidAPI-Key": api_key[0].key,
-                "X-RapidAPI-Host": API_HOST}
-
-        response = requests.get(url, headers=headers, params=querystring)
-        api_key[0].requests += 1
-        result = {}
-        temp_word = ""
-        k = 0
-        for i in response.json()['translated_text']['uk']:
-            if i == "|":
-                k += 1
-                result[f'key_{k}'] = temp_word
-                temp_word = ""
-                continue
-            temp_word += i
-        api_key[0].save()
-    finally:
-        api_key[0].save()
+    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
+    if len(data) == 2:
+        querystring = {
+            "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
+    else:
+        querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
+    headers = {"X-RapidAPI-Key": api_key[0].key,
+            "X-RapidAPI-Host": API_HOST}
+    response = requests.get(url, headers=headers, params=querystring)
+    
+    requests_counter = 0
+    requests_counter += api_key[0].requests
+    api_key.update(requests = requests_counter)
+    result = {}
+    temp_word = ""
+    k = 0
+    for i in response.json()['translated_text']['uk']:
+        if i == "|":
+            k += 1
+            result[f'key_{k}'] = temp_word
+            temp_word = ""
+            continue
+        temp_word += i
     return result
 
 
@@ -103,6 +99,7 @@ class NewsUserAdmin(admin.ModelAdmin):
 
 class TranslationKeysAdmin(admin.ModelAdmin):
     readonly_fields=('requests',)
+    list_display = ["key","active"]
 
 admin.site.register(News, NewsAdmin)
 # admin.site.register(Articles, ArticlesAdmin)
