@@ -526,20 +526,13 @@ class CommentList(viewsets.ModelViewSet):
                 description='Емейл автора который выставляет пост.',
                 required=True,
             ),
-            openapi.Parameter(
-                name='comment_body',
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-                description='Текст комментария',
-                required=True,
-            ),
         ],
     )
     def create(self, request):
 
         news_id = self.request.query_params.get('news_id', None)
         author_email = self.request.query_params.get('author_email', None)
-        body = self.request.query_params.get('comment_body', None)
+        body = request.data['comment_body']
 
         try:
             author = NewsUser.objects.get(email=author_email)
