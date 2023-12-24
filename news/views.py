@@ -468,6 +468,7 @@ class NewsUserViewSet(viewsets.ModelViewSet):
         """
             Возвращает пользователя по его емейлу.
         """
+        print(email)
         queryset = NewsUser.objects.get(email=email)
 
         serializer = NewsUserSerializer(queryset, many=True)

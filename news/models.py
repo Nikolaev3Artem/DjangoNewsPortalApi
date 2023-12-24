@@ -105,7 +105,7 @@ class NewsUser(models.Model):
     first_name = models.CharField(_('Имя'),max_length=100, null=True, blank=True)
     surname = models.CharField(_('Фамилия'),max_length=100, null=True, blank=True)
     profile_image = models.CharField(_('Картинка профиля'),max_length=500, null=True, blank=True)
-    email = models.CharField(_('Емейл'),max_length=100, null=False)
+    email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
 
     class Meta:
         verbose_name = "Пользователь"

@@ -18,17 +18,9 @@ DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
 
-# Google Auth
-BASE_FRONTEND_URL = os.getenv('DJANGO_BASE_FRONTEND_URL', default='http://localhost:8000')
-GOOGLE_OAUTH2_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_OAUTH2_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-
 # Application definition
 
-SITE_ID = 1
-
 INSTALLED_APPS = [
-    'news',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,6 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'news',
+
     'drf_yasg',
     'rest_framework',
     'rest_framework_swagger',
@@ -44,22 +38,7 @@ INSTALLED_APPS = [
     'django_filters',
     
     "django_elasticsearch_dsl",
-    "django.contrib.sites",
-
-    'django_rest_allauth',
-    'rest_framework.authtoken',
-    'corsheaders',
 ]
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google":{
-        "SCOPE":{
-            "profile",
-            "email"
-        },
-        "AUTH_PARAMS":{"access_type":"online"}
-    }
-}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -70,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'news_portal.urls'
@@ -179,13 +157,6 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-
-        'rest_framework.permissions.IsAuthenticated','rest_framework.permissions.AllowAny' )
 }
 
 SWAGGER_SETTINGS = {
@@ -225,5 +196,3 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ORIGIN_ALLOW_ALL = True  # установить False в продакшн
 # конец настройки для CORS
-CORS_ALLOW_CREDENTIALS = True
-
