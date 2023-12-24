@@ -1,6 +1,5 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
 
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer
 # from .documents import NewsDocument
@@ -15,7 +14,6 @@ class NewsList(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get']
     lookup_field = 'custom_url'
-    permission_classes = (AllowAny,)
     
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -127,7 +125,6 @@ class ApprovedNewsList(viewsets.ModelViewSet):
     serializer_class = NewsSerializer
     http_method_names = ['get', ]
     lookup_field = 'custom_url'
-    permission_classes = (AllowAny,)
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -236,7 +233,6 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     http_method_names = ['get']
-    permission_classes = (AllowAny,)
 
     @swagger_auto_schema(
         responses={
@@ -301,7 +297,6 @@ class TagsList(viewsets.ModelViewSet):
     serializer_class = TagsSerializer
     http_method_names = ['get', ]
     lookup_field = 'title'
-    permission_classes = (AllowAny,)
 
     @swagger_auto_schema(
         responses={
@@ -348,7 +343,6 @@ class CategoriesList(viewsets.ModelViewSet):
     serializer_class = CategoriesSerializer
     http_method_names = ['get']
     lookup_field = 'title'
-    permission_classes = (AllowAny,)
 
     @swagger_auto_schema(
         responses={
@@ -393,7 +387,6 @@ class AuthorList(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     http_method_names = ['get']
     lookup_field = 'name'
-    permission_classes = (AllowAny,)
     
     @swagger_auto_schema(
         responses={
@@ -436,7 +429,6 @@ class NewsUserViewSet(viewsets.ModelViewSet):
     serializer_class = NewsUserSerializer
     http_method_names = ['get','post']
     lookup_field = 'email'
-    permission_classes = (AllowAny,)
     
     @swagger_auto_schema(
         responses={
@@ -493,7 +485,6 @@ class NewsUserViewSet(viewsets.ModelViewSet):
 class CommentList(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post']
-    permission_classes = (AllowAny,)
     lookup_field = "news__id"
     @swagger_auto_schema(
         operation_summary='Получение списка всех комментариев к конкретному посту',
