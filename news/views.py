@@ -450,7 +450,7 @@ class NewsUserViewSet(viewsets.ModelViewSet):
         """
             Возвращает список всех пользователей.
         """
-        queryset = self.queryset
+        queryset = NewsUser.objects.all()
 
         serializer = NewsUserSerializer(queryset, many=True)
 
