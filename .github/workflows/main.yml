@@ -25,8 +25,4 @@ jobs:
         script: |
           cd news_portal/news_portal/
           git pull origin main
-    - name: Run Migrations
-      run: |
-        cd /
-        cd home/news-portal/news_portal/news_portal
-        python manage.py migrate
+          python manage.py migrate
