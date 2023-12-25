@@ -26,7 +26,7 @@ jobs:
           cd news_portal/news_portal/
           git pull origin main
     - name: Updating dependencies
-      script: |
+      run: |
         ls -al
         source env/Scripts/activate
         pip install -r requirements.txt
