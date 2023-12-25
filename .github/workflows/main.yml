@@ -25,5 +25,7 @@ jobs:
         script: |
           cd news_portal/news_portal/
           git pull origin main
-          pip install -r requirements.txt
-          python3 manage.py migrate
+    - name: Install Dependencies
+      run: pip install -r requirements.txt -c
+    - name: Apply Migrations
+      run: python manage.py migrate
