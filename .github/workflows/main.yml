@@ -24,5 +24,5 @@ jobs:
         port: 22
         script: |
           cd news_portal/news_portal/
-          ls
+          git status
           git pull origin main
