@@ -27,7 +27,8 @@ jobs:
           git pull origin main
     - name: Updating dependencies
       run: |
-        cd news_portal/news_portal/
+        cd /
+        cd home/news-portal/news_portal/news_portal/
         source env/Scripts/activate
         pip install -r requirements.txt
         python manage.py migrate
