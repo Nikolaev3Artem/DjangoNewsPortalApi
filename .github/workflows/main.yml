@@ -26,3 +26,6 @@ jobs:
           cd news_portal/news_portal/
           git pull origin main
           python3 manage.py migrate
+    - name: Install Dependencies
+      run: |
+        python3 manage.py migrate
