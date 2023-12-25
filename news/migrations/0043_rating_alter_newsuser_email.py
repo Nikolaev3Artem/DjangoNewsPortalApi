@@ -19,9 +19,4 @@ class Migration(migrations.Migration):
                 ('rating', models.IntegerField(verbose_name='Рейтинг')),
             ],
         ),
-        migrations.AlterField(
-            model_name='newsuser',
-            name='email',
-            field=models.CharField(max_length=100, unique=True, verbose_name='Емейл'),
-        ),
     ]
