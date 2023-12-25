@@ -25,9 +25,9 @@ jobs:
         script: |
           cd news_portal/news_portal/
           git pull origin main
-          
-  - name: Updating dependencies
-    script: |
-      source env/Scripts/activate
-      pip install -r requirements.txt
-      python manage.py migrate
+
+    - name: Updating dependencies
+      script: |
+        source env/Scripts/activate
+        pip install -r requirements.txt
+        python manage.py migrate
