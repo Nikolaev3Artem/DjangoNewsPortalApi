@@ -25,4 +25,4 @@ jobs:
         script: |
           cd news_portal/news_portal/
           git pull origin main
-          python manage.py migrate
+          python3 manage.py migrate
