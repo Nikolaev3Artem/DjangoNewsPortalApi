@@ -543,15 +543,28 @@ class CommentList(viewsets.ModelViewSet):
         )
         return Response(data="Comment posted", status=status.HTTP_201_CREATED)
 
-class RatingList(viewsets.ModelViewSet):
+class AddRating(viewsets.ModelViewSet):
     lookup_field = 'user_email'
     http_method_names = ['post','delete']
-    
-    def create(self, request):
+
+    @swagger_auto_schema(
+        operation_summary='Добавление рейтинга пользователем к новости',
+        tags=['Новости'],
+    )
+    def create(self, request, pk, user_email):
         pass
 
-    def delete(self, request):
+
+class RemoveRating(viewsets.ViewSet):
+    http_method_names = ['post','delete']
+    @swagger_auto_schema(
+        operation_summary='Удаление рейтинга пользователем к новости',
+        tags=['Новости'],
+    )  
+    def delete(self, request, pk, user_email):
         pass
+
+
 
 # @swagger_auto_schema(
 #     responses={
