@@ -55,12 +55,14 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
+    
 class Rating(models.Model):
     rating_sum = models.IntegerField()
     rating_count = models.IntegerField()
     rating = models.IntegerField(_('Рейтинг'))
     def __str__(self):
         return self.rating
+
 class News(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField( _('Назва'), max_length=150, null=True)
@@ -80,7 +82,7 @@ class News(models.Model):
     tags = models.ManyToManyField(Tags,blank=True)
     categories = models.ManyToManyField(Categories, blank=True)
     time_to_read = models.IntegerField(_('Час прочитання'), blank=True, null=True)
-    rating = models.ForeignKey(Rating, on_delete=models.CASCADE, null=True, blank=True)
+    rating = models.FloatField(_('Рейтинг'), default=5)
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
     translated = models.BooleanField(default=False, editable=False)
