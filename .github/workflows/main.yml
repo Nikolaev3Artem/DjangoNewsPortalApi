@@ -23,5 +23,6 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: 22
         script: |
-          cd /news_portal/news_portal
+          ls
+          cd home/news-portal/news_portal/news_portal
           git pull origin main
