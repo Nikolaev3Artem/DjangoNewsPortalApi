@@ -28,4 +28,5 @@ jobs:
           python3 manage.py migrate
     - name: Install Dependencies
       run: |
+        cd news_portal/news_portal/
         python3 manage.py migrate
