@@ -1,9 +1,9 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer
+from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer, RatingSerializer
 # from .documents import NewsDocument
-from .models import News, Tags, Author, Categories, NewsUser, Comment
+from .models import News, Tags, Author, Categories, NewsUser, Comment, Rating
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import random
@@ -156,7 +156,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             queryset = queryset.filter(custom_url=custom_url)
 
         return queryset
-    
+
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список всех новостей подтвержденных админом.'),
@@ -542,6 +542,17 @@ class CommentList(viewsets.ModelViewSet):
             news = single_news,
         )
         return Response(data="Comment posted", status=status.HTTP_201_CREATED)
+
+class RatingList(viewsets.ModelViewSet):
+    lookup_field = 'user_email'
+    http_method_names = ['post','delete']
+    
+    def create(self, request):
+        pass
+
+    def delete(self, request):
+        pass
+
 # @swagger_auto_schema(
 #     responses={
 #         200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
