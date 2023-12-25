@@ -1,4 +1,4 @@
-from .models import News, Author, Tags, Categories, NewsUser, Comment
+from .models import News, Author, Tags, Categories, NewsUser, Comment, Rating
 from rest_framework import serializers
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -156,4 +156,10 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'body', 'author', 'news_id']
+        depth = 2
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ['rating']
         depth = 2
