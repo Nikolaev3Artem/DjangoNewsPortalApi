@@ -82,7 +82,7 @@ class News(models.Model):
     tags = models.ManyToManyField(Tags,blank=True)
     categories = models.ManyToManyField(Categories, blank=True)
     time_to_read = models.IntegerField(_('Час прочитання'), blank=True, null=True)
-    rating = models.FloatField(_('Рейтинг'), default=5)
+    rating = models.FloatField(_('Рейтинг'), default=0)
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
     translated = models.BooleanField(default=False, editable=False)
