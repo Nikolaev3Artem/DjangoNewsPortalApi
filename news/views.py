@@ -123,7 +123,7 @@ class NewsList(viewsets.ModelViewSet):
 class ApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
-    http_method_names = ['get', ]
+    http_method_names = ['get']
     lookup_field = 'custom_url'
 
     def filter_queryset(self, queryset):
@@ -543,28 +543,83 @@ class CommentList(viewsets.ModelViewSet):
         )
         return Response(data="Comment posted", status=status.HTTP_201_CREATED)
 
-class AddRating(viewsets.ModelViewSet):
-    lookup_field = 'user_email'
-    http_method_names = ['post','delete']
-
+class CreateRating(viewsets.ModelViewSet):
+    http_method_names = ['post']
+    serializer_class = RatingSerializer
     @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное добавление рейтинга.'),
+        },
         operation_summary='Добавление рейтинга пользователем к новости',
         tags=['Новости'],
     )
-    def create(self, request, pk, user_email):
-        pass
+    def create(self, request):
+        news_id = request.data['news_id']
+        rating = request.data['rating']
+        user_email = request.data['user_email']
+        try:
+            news = News.objects.get(id=news_id)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="News not found!")
+        try:
+            user = NewsUser.objects.get(email=user_email)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="User not found!")
 
+        if news and user:
+            Rating.objects.create(
+                news_id = news_id,
+                rating = rating,
+                user_email = user_email
+            )
+            rate_sum = 0
+            for rate in Rating.objects.all():
+                rate_sum += rate.rating
 
-class RemoveRating(viewsets.ViewSet):
-    http_method_names = ['post','delete']
+            rating = int(rate_sum / len(Rating.objects.all()))
+            News.objects.filter(id=news_id).update(rating=rating)
+        
+        return Response(status=status.HTTP_201_CREATED, data="Created!")
+
+class DeleteRating(viewsets.ModelViewSet):
+    http_method_names = ['delete']
+    serializer_class = RatingSerializer
+    lookup_field = 'user_email'
     @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
         operation_summary='Удаление рейтинга пользователем к новости',
         tags=['Новости'],
-    )  
-    def delete(self, request, pk, user_email):
-        pass
-
-
+        manual_parameters=[
+            openapi.Parameter(
+                name='news_id',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='ID поста, для которого нужно удалить рейтинг',
+                required=True,
+            ),
+        ]
+    )
+    def destroy(self, request, user_email):
+        news_id = self.request.query_params.get('news_id', None)
+        print(news_id, user_email)
+        try:
+            news = News.objects.get(id=news_id)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="News not found!")
+        try:
+            user = NewsUser.objects.get(email=user_email)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="User not found!")
+        print(user, news)
+        # if news and user:
+        #     Rating.objects.filter(
+        #         news_id = news_id,
+        #         user_email = user_email
+        #     ).delete()
+        
+        return Response(status=status.HTTP_200_OK, data="Succesfully deleted!")
 
 # @swagger_auto_schema(
 #     responses={
