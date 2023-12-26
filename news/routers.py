@@ -1,11 +1,12 @@
 from rest_framework.routers import DefaultRouter
-from .views import NewsList, ApprovedNewsList, TagsList, CategoriesList, AuthorList, RandomApprovedNewsList, NewsUserViewSet, CommentList, AddRating, RemoveRating
+from .views import NewsList, ApprovedNewsList, TagsList, CategoriesList, AuthorList, RandomApprovedNewsList, NewsUserViewSet, CommentList, CreateRating, DeleteRating
 
 router = DefaultRouter()
+
 router.register(r'ApprovedNews', ApprovedNewsList, basename="ApprovedNews")
 router.register(r'RandomApprovedNews', RandomApprovedNewsList, basename="RandomApprovedNewsList")
-router.register(r'ApprovedNews/<int:pk>/add_rate/<str:user_email>', AddRating, basename="Rating")
-router.register(r'ApprovedNews/<int:pk>/add_rate', RemoveRating, basename="Rating")
+router.register(r'AddRate', CreateRating, basename="AddRating")
+router.register(r'DeleteRate', DeleteRating, basename="DeleteRating")
 
 # router.register(r'ApprovedNewsSearch', ApprovedNewsSearch, basename="ApprovedNewsSearch")
 router.register(r'News', NewsList, basename="News")
