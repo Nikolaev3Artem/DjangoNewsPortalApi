@@ -484,7 +484,7 @@ class NewsUserViewSet(viewsets.ModelViewSet):
 
 class CommentList(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post','delete']
     lookup_field = "news__id"
     @swagger_auto_schema(
         operation_summary='Получение списка всех комментариев к конкретному посту',
@@ -542,7 +542,42 @@ class CommentList(viewsets.ModelViewSet):
             news = single_news,
         )
         return Response(data="Comment posted", status=status.HTTP_201_CREATED)
-
+    
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
+        operation_summary='Удаление рейтинга пользователем к новости',
+        tags=['Коментарии'],
+        manual_parameters=[
+            openapi.Parameter(
+                name='author_email',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='Емейл автора который выставляет пост.',
+                required=True,
+            ),
+        ]
+    )
+    def destroy(self, request, news__id):
+        user_email = self.request.query_params.get('author_email', None)
+        print(news__id, user_email)
+        try:
+            news = News.objects.get(id=news__id)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="News not found!")
+        try:
+            user = NewsUser.objects.get(email=user_email)
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="User not found!")
+        if news and user:
+            Comment.objects.filter(
+                news__id = news__id,
+                author__email = user_email
+            ).delete()
+        
+        return Response(status=status.HTTP_200_OK, data="Succesfully deleted!")
+        
 class CreateRating(viewsets.ModelViewSet):
     http_method_names = ['post']
     serializer_class = RatingSerializer
@@ -612,7 +647,6 @@ class DeleteRating(viewsets.ModelViewSet):
             user = NewsUser.objects.get(email=user_email)
         except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="User not found!")
-        print(user, news)
         # if news and user:
         #     Rating.objects.filter(
         #         news_id = news_id,
