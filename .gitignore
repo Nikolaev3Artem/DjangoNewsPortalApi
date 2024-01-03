@@ -3,5 +3,6 @@ vscode
 
 *.sqlite3
 env/
+venv/
 .env
 .idea/*
