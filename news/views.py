@@ -545,31 +545,30 @@ class CommentList(viewsets.ModelViewSet):
     
     @swagger_auto_schema(
         responses={
-            200: openapi.Response(description='Успешное удаление рейтинга.'),
+            200: openapi.Response(description='Успешное удаление коментария.'),
         },
-        operation_summary='Удаление рейтинга пользователем к новости',
+        operation_summary='Удаление коментария пользователем к новости',
         tags=['Коментарии'],
         manual_parameters=[
             openapi.Parameter(
                 name='author_email',
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description='Емейл автора который выставляет пост.',
+                description='Емейл автора который отправил коментарий.',
                 required=True,
             ),
         ]
     )
     def destroy(self, request, news__id):
         user_email = self.request.query_params.get('author_email', None)
-        print(news__id, user_email)
         try:
             news = News.objects.get(id=news__id)
         except:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="News not found!")
+            return Response(status=status.HTTP_404_NOT_FOUND, data="News not found!")
         try:
             user = NewsUser.objects.get(email=user_email)
         except:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="User not found!")
+            return Response(status=status.HTTP_404_NOT_FOUND, data="User not found!")
         if news and user:
             Comment.objects.filter(
                 news__id = news__id,
@@ -595,11 +594,11 @@ class CreateRating(viewsets.ModelViewSet):
         try:
             news = News.objects.get(id=news_id)
         except:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="News not found!")
+            return Response(status=status.HTTP_404_NOT_FOUND, data="News not found!")
         try:
             user = NewsUser.objects.get(email=user_email)
         except:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data="User not found!")
+            return Response(status=status.HTTP_404_NOT_FOUND, data="User not found!")
 
         if news and user:
             Rating.objects.create(
