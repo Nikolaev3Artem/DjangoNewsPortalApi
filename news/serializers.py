@@ -19,7 +19,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
 
-        fields = ('name', 'description','articles','facebook','twitter','telegram')
+        fields = ('name', 'description','articles','facebook','twitter','telegram','rating')
         depth = 1
 
 

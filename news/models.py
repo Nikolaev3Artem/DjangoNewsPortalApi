@@ -48,6 +48,7 @@ class Author(models.Model):
     facebook = models.CharField(_('Фейсбук'), max_length=50, blank=True, null=True)
     twitter = models.CharField(_('Твіттер'), max_length=50, blank=True, null=True)
     telegram = models.CharField(_('Телеграм'), max_length=50, blank=True, null=True)
+    rating = models.IntegerField(_('Рейтинг'), default=0, null=False)
 
     class Meta:
         verbose_name = "Автор"
