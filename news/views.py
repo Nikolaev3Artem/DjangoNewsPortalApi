@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.decorators import api_view
 
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer, RatingSerializer
 # from .documents import NewsDocument
@@ -9,7 +11,7 @@ from drf_yasg import openapi
 import random
 import json
 
-class NewsList(viewsets.ModelViewSet):
+class NewsList(viewsets.ViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
     http_method_names = ['get']
@@ -120,11 +122,11 @@ class NewsList(viewsets.ModelViewSet):
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
     
 
-class ApprovedNewsList(viewsets.ModelViewSet):
+class ApprovedNewsList(viewsets.ViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
-    http_method_names = ['get']
     lookup_field = 'custom_url'
+    
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -169,7 +171,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             ?category - фильтрация новостей по категориям.
             ?url - поиск новости по кастомному урлу.
         """,
-        tags=['Новости'],
+        tags=['Подтвержденные Новости'],
         manual_parameters = [
             openapi.Parameter(
                 "tags",
@@ -215,7 +217,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             Возвращает новость подтвержденную админом.
             ?url - поиск новости по кастомному урлу.
         """,
-        tags=['Новости'],
+        tags=['Подтвержденные Новости'],
     )
     def retrieve(self, request, custom_url):
         """
@@ -228,11 +230,51 @@ class ApprovedNewsList(viewsets.ModelViewSet):
                 return Response(data=serializer.data, status=200)
             else:
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
+        operation_summary='Сохранения новости пользователем',
+        tags=['Подтвержденные Новости'],
+        request_body=openapi.Schema(
+            type='object',
+            properties={
+                'email': openapi.Schema(type='string', description='Заголовок поста'),
+            },
+            required=['email'],
+        ),
+    )
+    @action(detail=True, methods=['post'])
+    def save(self, request, custom_url=None):
+        email = request.data['email']
+        news = News.objects.get(custom_url=custom_url)
+        user = NewsUser.objects.get(email=email)
+        user.saved_news.add(news)
+        return Response(status=200)
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
+        operation_summary='Сохранения новости пользователем',
+        tags=['Подтвержденные Новости'],
+        request_body=openapi.Schema(
+            type='object',
+            properties={
+                'email': openapi.Schema(type='string', description='Заголовок поста'),
+            },
+            required=['email'],
+        ),
+    )
+    @action(detail=True, methods=['delete'])
+    def unsave(self, request, custom_url=None):
+        print(custom_url)
+
         
-class RandomApprovedNewsList(viewsets.ModelViewSet):
+class RandomApprovedNewsList(viewsets.ViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
-    http_method_names = ['get']
 
     @swagger_auto_schema(
         responses={
@@ -273,26 +315,11 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
             except:
                 return Response(data="Something went wrong", status=500)
         else:
-            # try:
             queryset = random.choices(queryset, k = 5)
             serializer = SingleNewsSerializer(queryset, many=True)
             return Response(data=serializer.data, status=200)
-            # except:
-            #     return Response(data="Something went wrong", status=500)
-            
-    @swagger_auto_schema(
-        responses={
-            200: openapi.Response(description=''),
-            400: 'Обьэкт не найден',
-            500: 'Внутренняя ошибка сервера',
-        },
-        operation_summary='НЕ РАБОТАЕТ!',
-        tags=['Рандомные Новости'],
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
 
-class TagsList(viewsets.ModelViewSet):
+class TagsList(viewsets.ViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
     http_method_names = ['get', ]
@@ -338,7 +365,7 @@ class TagsList(viewsets.ModelViewSet):
             else:
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
-class CategoriesList(viewsets.ModelViewSet):
+class CategoriesList(viewsets.ViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     http_method_names = ['get']
@@ -382,7 +409,7 @@ class CategoriesList(viewsets.ModelViewSet):
             else:
                 return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
-class AuthorList(viewsets.ModelViewSet):
+class AuthorList(viewsets.ViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
     http_method_names = ['get']
@@ -424,7 +451,7 @@ class AuthorList(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-class NewsUserViewSet(viewsets.ModelViewSet):
+class NewsUserViewSet(viewsets.ViewSet):
     queryset = NewsUser.objects.all()
     serializer_class = NewsUserSerializer
     http_method_names = ['get','post']
@@ -482,7 +509,7 @@ class NewsUserViewSet(viewsets.ModelViewSet):
                 return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
         return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
-class CommentList(viewsets.ModelViewSet):
+class CommentList(viewsets.ViewSet):
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post','delete']
     lookup_field = "news__id"
@@ -577,7 +604,7 @@ class CommentList(viewsets.ModelViewSet):
         
         return Response(status=status.HTTP_200_OK, data="Succesfully deleted!")
         
-class CreateRating(viewsets.ModelViewSet):
+class CreateRating(viewsets.ViewSet):
     http_method_names = ['post']
     serializer_class = RatingSerializer
     @swagger_auto_schema(
@@ -585,7 +612,14 @@ class CreateRating(viewsets.ModelViewSet):
             200: openapi.Response(description='Успешное добавление рейтинга.'),
         },
         operation_summary='Добавление рейтинга пользователем к новости',
-        tags=['Новости'],
+        tags=['Подтвержденные Новости'],
+        request_body=openapi.Schema(
+            type='object',
+            properties={
+                'user_email': openapi.Schema(type='string', description='Емейл пользователя'),
+            },
+            required=['user_email'],
+        )
     )
     def create(self, request):
         news_id = request.data['news_id']
@@ -615,7 +649,7 @@ class CreateRating(viewsets.ModelViewSet):
         
         return Response(status=status.HTTP_201_CREATED, data="Created!")
 
-class DeleteRating(viewsets.ModelViewSet):
+class DeleteRating(viewsets.ViewSet):
     http_method_names = ['delete']
     serializer_class = RatingSerializer
     lookup_field = 'user_email'
@@ -624,7 +658,7 @@ class DeleteRating(viewsets.ModelViewSet):
             200: openapi.Response(description='Успешное удаление рейтинга.'),
         },
         operation_summary='Удаление рейтинга пользователем к новости',
-        tags=['Новости'],
+        tags=['Подтвержденные Новости'],
         manual_parameters=[
             openapi.Parameter(
                 name='news_id',
@@ -654,6 +688,46 @@ class DeleteRating(viewsets.ModelViewSet):
         
         return Response(status=status.HTTP_200_OK, data="Succesfully deleted!")
 
+class SaveNews(viewsets.ViewSet):
+    http_method_names = ['post','delete']
+    serializer_class = NewsUserSerializer
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
+        operation_summary='Сохранения новости пользователем',
+        tags=['Новости'],
+        request_body=openapi.Schema(
+            type='object',
+            properties={
+                'email': openapi.Schema(type='string', description='Заголовок поста'),
+            },
+            required=['email'],
+        ),
+    )
+    def create(self, request, pk):
+        print(pk)
+        print(request.body['email'])
+
+
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
+        operation_summary='Удаление сохраненной новости пользователем',
+        tags=['Подтвержденные Новости'],
+        # manual_parameters=[
+        #     openapi.Parameter(
+        #         name='news_id',
+        #         in_=openapi.IN_QUERY,
+        #         type=openapi.TYPE_INTEGER,
+        #         description='ID поста, для которого нужно удалить рейтинг',
+        #         required=True,
+        #     ),
+        # ]
+    )
+    def destroy(self, request):
+        ...
 # @swagger_auto_schema(
 #     responses={
 #         200: openapi.Response(description='Поиск по новостям подтвержденных админом'),
@@ -663,7 +737,7 @@ class DeleteRating(viewsets.ModelViewSet):
 #     operation_description='Возвращает список всех новостей подтвержденных админом.',
 #     tags=['Новости'],
 # )
-# class ApprovedNewsSearch(viewsets.ModelViewSet):
+# class ApprovedNewsSearch(viewsets.ViewSet):
 #     """
 #     API endpoint для поиска списка среди всех новостей которые подтвердженные админом.
 

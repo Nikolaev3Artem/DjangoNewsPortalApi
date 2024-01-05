@@ -146,7 +146,7 @@ class SingleNewsSerializer(serializers.ModelSerializer):
 class NewsUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsUser
-        fields = ('id','first_name', 'surname', 'profile_image', 'email')
+        fields = ('id','first_name', 'surname', 'profile_image', 'email','saved_news')
         depth = 1
 
 class CommentSerializer(serializers.ModelSerializer):

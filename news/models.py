@@ -109,7 +109,6 @@ class TranslationKeys(models.Model):
 
     def __str__(self):
         return self.key
-    
 
 class NewsUser(models.Model):
     id = models.AutoField(primary_key=True)
@@ -117,13 +116,16 @@ class NewsUser(models.Model):
     surname = models.CharField(_('Фамилия'),max_length=100, null=True, blank=True)
     profile_image = models.CharField(_('Картинка профиля'),max_length=500, null=True, blank=True)
     email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
+    saved_news = models.ManyToManyField(News,related_name='saved_news', null=True)
 
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
-
+    
     def __str__(self):
         return self.email
+
+
 
 class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
