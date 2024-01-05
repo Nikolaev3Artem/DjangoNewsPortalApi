@@ -62,7 +62,6 @@ class Author(models.Model):
         return News.objects.all().filter(author__name = self.name).count()
     
 class Rating(models.Model):
-    news_id = models.IntegerField(_('Айди новости'), null=True)
     user_email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
     rating = models.IntegerField(_('Рейтинг'))
     def __str__(self):
@@ -87,7 +86,7 @@ class News(models.Model):
     tags = models.ManyToManyField(Tags,blank=True)
     categories = models.ManyToManyField(Categories, blank=True)
     time_to_read = models.IntegerField(_('Час прочитання'), blank=True, null=True)
-    rating = models.IntegerField(_('Рейтинг'), default=0, null=False)
+    rating = models.ManyToManyField(Rating,related_name='news_rating')
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
     translated = models.BooleanField(default=False, editable=False)
@@ -98,6 +97,9 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def rating_avg(self):
+        return 5 #sum(self.rating) / self.rating.count()
 
 class TranslationKeys(models.Model):
     key = models.CharField(_('Ключ'),max_length=2000, null=True)
@@ -116,7 +118,7 @@ class NewsUser(models.Model):
     surname = models.CharField(_('Фамилия'),max_length=100, null=True, blank=True)
     profile_image = models.CharField(_('Картинка профиля'),max_length=500, null=True, blank=True)
     email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
-    saved_news = models.ManyToManyField(News,related_name='saved_news', null=True)
+    saved_news = models.ManyToManyField(News, related_name='saved_news')
 
     class Meta:
         verbose_name = "Пользователь"
