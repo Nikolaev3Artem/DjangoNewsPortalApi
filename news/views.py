@@ -269,7 +269,11 @@ class ApprovedNewsList(viewsets.ViewSet):
     )
     @action(detail=True, methods=['delete'])
     def unsave(self, request, custom_url=None):
-        print(custom_url)
+        email = request.data['email']
+        news = News.objects.get(custom_url=custom_url)
+        user = NewsUser.objects.get(email=email)
+        user.saved_news.remove(news)
+        return Response(status=200)
 
         
 class RandomApprovedNewsList(viewsets.ViewSet):
