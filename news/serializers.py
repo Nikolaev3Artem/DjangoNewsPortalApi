@@ -16,11 +16,15 @@ class AuthorSerializer(serializers.ModelSerializer):
         - twitter - ссылка на твитер
         - telegram - ссылка на телеграм
     """
+    news_count = serializers.SerializerMethodField()
     class Meta:
         model = Author
 
-        fields = ('name', 'description','articles','facebook','twitter','telegram','rating')
+        fields = ('name', 'description','facebook','twitter','telegram','rating','news_count')
         depth = 1
+
+    def news_count(self, obj):
+        return obj.news_count()
 
 
 class TagsSerializer(serializers.ModelSerializer):

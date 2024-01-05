@@ -83,7 +83,7 @@ class ArticlesAdmin(admin.ModelAdmin):
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ("news_posted",)
 
 
 class TagsAdmin(admin.ModelAdmin):

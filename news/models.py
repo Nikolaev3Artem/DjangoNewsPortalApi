@@ -44,11 +44,12 @@ class Author(models.Model):
     name = models.CharField(_('Імя'), max_length=50, null=False)
     description = models.CharField(_('Опис'), max_length=1500, blank=True)
     route = models.URLField(_('Посилання'), max_length=400, blank=True)
-    articles = models.ManyToManyField(Articles)
+    # articles = models.ManyToManyField(Articles)
     facebook = models.CharField(_('Фейсбук'), max_length=50, blank=True, null=True)
     twitter = models.CharField(_('Твіттер'), max_length=50, blank=True, null=True)
     telegram = models.CharField(_('Телеграм'), max_length=50, blank=True, null=True)
     rating = models.IntegerField(_('Рейтинг'), default=0, null=False)
+    news_posted = models.IntegerField(default=0, null=False)
 
     class Meta:
         verbose_name = "Автор"
@@ -56,6 +57,9 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def news_count(self):
+        return News.objects.all().filter(author__name = self.name).count()
     
 class Rating(models.Model):
     news_id = models.IntegerField(_('Айди новости'), null=True)
