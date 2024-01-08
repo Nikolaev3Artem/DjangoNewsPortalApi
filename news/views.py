@@ -707,7 +707,7 @@ class CommentList(viewsets.ModelViewSet):
             return Response(status=status.HTTP_404_NOT_FOUND, data="User not found!")
         if news and user:
             Comment.objects.filter(
-                comment_id = comment_id,
+                id = comment_id,
                 news__id = news__id,
                 author__email = user_email
             ).delete()
