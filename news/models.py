@@ -86,7 +86,7 @@ class News(models.Model):
     tags = models.ManyToManyField(Tags,blank=True)
     categories = models.ManyToManyField(Categories, blank=True)
     time_to_read = models.IntegerField(_('Час прочитання'), blank=True, null=True)
-    rating = models.ManyToManyField(Rating,related_name='news_rating')
+    rating = models.ManyToManyField(Rating,related_name='news_rating', blank=True)
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
     translated = models.BooleanField(default=False, editable=False)
@@ -111,14 +111,13 @@ class TranslationKeys(models.Model):
 
     def __str__(self):
         return self.key
-
+    
 class NewsUser(models.Model):
     id = models.AutoField(primary_key=True)
     first_name = models.CharField(_('Имя'),max_length=100, null=True, blank=True)
     surname = models.CharField(_('Фамилия'),max_length=100, null=True, blank=True)
     profile_image = models.CharField(_('Картинка профиля'),max_length=500, null=True, blank=True)
     email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
-    saved_news = models.ManyToManyField(News, related_name='saved_news')
 
     class Meta:
         verbose_name = "Пользователь"
@@ -126,9 +125,15 @@ class NewsUser(models.Model):
     
     def __str__(self):
         return self.email
-
-
-
+    
+class SavedNews(models.Model):
+    news_custom_url = models.CharField(
+        _('Кастомне посилання'), null=True)
+    newsuser = models.ForeignKey(NewsUser, on_delete=models.CASCADE, blank=True)
+    
+    def __str__(self):
+        return self.news_custom_url
+    
 class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(NewsUser, related_name='comments', on_delete=models.CASCADE)

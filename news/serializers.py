@@ -1,4 +1,4 @@
-from .models import News, Author, Tags, Categories, NewsUser, Comment, Rating
+from .models import News, Author, Tags, Categories, NewsUser, Comment, Rating, SavedNews
 from rest_framework import serializers
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -147,10 +147,11 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         depth = 2
 
 class NewsUserSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = NewsUser
-        fields = ('id','first_name', 'surname', 'profile_image', 'email','saved_news')
-        depth = 1
+        fields = ('id','first_name', 'surname', 'profile_image', 'email')
+        depth = 2
 
 class CommentSerializer(serializers.ModelSerializer):
     """
@@ -170,3 +171,8 @@ class RatingSerializer(serializers.ModelSerializer):
         model = Rating
         fields = ['news_id','user_email','rating']
         depth = 2
+        
+class SavedNewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedNews
+        fields = ['news_custom_url','newsuser__name']

@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view
 
-from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer, RatingSerializer
+from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, NewsUserSerializer, CommentSerializer, SavedNewsSerializer
 # from .documents import NewsDocument
-from .models import News, Tags, Author, Categories, NewsUser, Comment, Rating
+from .models import News, Tags, Author, Categories, NewsUser, Comment, Rating, SavedNews, Comment
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import random
@@ -248,7 +248,10 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         email = request.data['email']
         news = News.objects.get(custom_url=custom_url)
         user = NewsUser.objects.get(email=email)
-        user.saved_news.add(news)
+        SavedNews.objects.create(
+            news_custom_url = news.custom_url,
+            newsuser = user,
+        )
         return Response(status=200)
 
     @swagger_auto_schema(
@@ -270,7 +273,8 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         email = request.data['email']
         news = News.objects.get(custom_url=custom_url)
         user = NewsUser.objects.get(email=email)
-        user.saved_news.remove(news)
+        print(user)
+        user.saved_news.get(news_custom_url = news.custom_url).delete()
         return Response(status=status.HTTP_200_OK, data="Deleted!")
 
     @swagger_auto_schema(
@@ -530,7 +534,7 @@ class AuthorList(viewsets.ModelViewSet):
 class NewsUserViewSet(viewsets.ModelViewSet):
     queryset = NewsUser.objects.all()
     serializer_class = NewsUserSerializer
-    # http_method_names = ['get','post']
+    http_method_names = ['get','post']
     lookup_field = 'email'
     
     @swagger_auto_schema(
@@ -582,8 +586,31 @@ class NewsUserViewSet(viewsets.ModelViewSet):
             else:
                 return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
         return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self, request, email=None):
+        print(123)
+        if email is not None:
+            queryset = NewsUser.objects.filter(email=email)
+            serializer = NewsUserSerializer(queryset, many=True)
+            if queryset.count() != 0:
+                return Response(data=serializer.data, status=200)
+            else:
+                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Cписок сохраненных новостей.'),
+        },
+        operation_summary='Сохраненные новости',
+        tags=['Пользователи'],
+    )
+    @action(detail=True, methods=['get'])
+    def saved_news(self, request, email=None):
+        # queryset = SavedNews.objects.filter(newsuser__email = email)
+        print(email)
+        
 class CommentList(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post','delete']
     lookup_field = "news__id"
@@ -658,10 +685,18 @@ class CommentList(viewsets.ModelViewSet):
                 description='Емейл автора который отправил коментарий.',
                 required=True,
             ),
+                openapi.Parameter(
+                name='comment_id',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_INTEGER,
+                description='Емейл автора который отправил коментарий.',
+                required=True,
+            ),
         ]
     )
     def destroy(self, request, news__id):
         user_email = self.request.query_params.get('author_email', None)
+        comment_id = self.request.query_params.get('comment_id', None)
         try:
             news = News.objects.get(id=news__id)
         except:
@@ -672,6 +707,7 @@ class CommentList(viewsets.ModelViewSet):
             return Response(status=status.HTTP_404_NOT_FOUND, data="User not found!")
         if news and user:
             Comment.objects.filter(
+                comment_id = comment_id,
                 news__id = news__id,
                 author__email = user_email
             ).delete()
