@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='news',
-            name='rating',
-            field=models.ManyToManyField(null=True, to='news.rating'),
+            name='news_rating',
+            field=models.ManyToManyField(null=True, to='news.rating',related_name='news_rating', blank=True),
         ),
     ]
