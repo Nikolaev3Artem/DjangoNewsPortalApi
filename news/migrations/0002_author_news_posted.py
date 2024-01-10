@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='author',
-            name='news_posted',
-            field=models.IntegerField(default=0),
-        ),
+    #     migrations.AddField(
+    #         model_name='author',
+    #         name='news_posted',
+    #         field=models.IntegerField(default=0),
+    #     ),
     ]

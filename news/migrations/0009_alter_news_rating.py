@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='news',
-            name='rating',
-            field=models.ManyToManyField(blank=True, related_name='news_rating', to='news.rating'),
-        ),
+        # migrations.AlterField(
+        #     model_name='news',
+        #     name='rating',
+        #     field=models.ManyToManyField(blank=True, related_name='news_rating', to='news.rating'),
+        # ),
     ]

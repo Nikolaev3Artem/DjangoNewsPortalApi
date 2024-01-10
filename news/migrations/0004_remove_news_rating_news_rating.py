@@ -9,10 +9,10 @@ class Migration(migrations.Migration):
         ('news', '0003_newsuser_saved_news'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='news',
-            name='news_rating',
-            field=models.ManyToManyField(null=True, to='news.rating',related_name='news_rating', blank=True),
-        ),
-    ]
+    # operations = [
+    #     migrations.AddField(
+    #         model_name='news',
+    #         name='news_rating',
+    #         field=models.ManyToManyField(null=True, to='news.rating',related_name='news_rating', blank=True),
+    #     ),
+    # ]

@@ -10,18 +10,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='rating',
-            name='news_id',
-        ),
-        migrations.AlterField(
-            model_name='news',
-            name='rating',
-            field=models.ManyToManyField(related_name='news_rating', to='news.rating'),
-        ),
-        migrations.AlterField(
-            model_name='newsuser',
-            name='saved_news',
-            field=models.ManyToManyField(related_name='saved_news', to='news.news'),
-        ),
+    #     migrations.RemoveField(
+    #         model_name='rating',
+    #         name='news_id',
+    #     ),
+    #     migrations.AlterField(
+    #         model_name='news',
+    #         name='rating',
+    #         field=models.ManyToManyField(related_name='news_rating', to='news.rating'),
+    #     ),
+    #     migrations.AlterField(
+    #         model_name='newsuser',
+    #         name='saved_news',
+    #         field=models.ManyToManyField(related_name='saved_news', to='news.news'),
+    #     ),
     ]
