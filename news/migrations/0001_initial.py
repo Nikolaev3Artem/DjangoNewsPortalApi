@@ -67,15 +67,15 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Пользователи',
             },
         ),
-        migrations.CreateModel(
-            name='Rating',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('news_id', models.IntegerField(null=True, verbose_name='Айди новости')),
-                ('user_email', models.CharField(max_length=100, unique=True, verbose_name='Емейл')),
-                ('rating', models.IntegerField(verbose_name='Рейтинг')),
-            ],
-        ),
+        # migrations.CreateModel(
+        #     name='Rating',
+        #     fields=[
+        #         ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+        #         ('news_id', models.IntegerField(null=True, verbose_name='Айди новости')),
+        #         ('user_email', models.CharField(max_length=100, unique=True, verbose_name='Емейл')),
+        #         ('rating', models.IntegerField(verbose_name='Рейтинг')),
+        #     ],
+        # ),
         migrations.CreateModel(
             name='Tags',
             fields=[
