@@ -10,12 +10,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='news',
-            name='news_rating',
-        ),
-        migrations.RemoveField(
-            model_name='rating',
-            name='news_id',
-        ),
+        #migrations.RemoveField(
+         #   model_name='news',
+         #   name='news_rating',
+        #),
+        #migrations.RemoveField(
+        #    model_name='rating',
+        #    name='news_id',
+       # ),
     ]
