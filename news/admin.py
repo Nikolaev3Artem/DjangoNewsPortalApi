@@ -55,9 +55,9 @@ def translate_text(data):
 
 
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ["title", 'country', "is_approved"]
-    ordering = ["is_approved"]
-    readonly_fields=('translated','rating')
+    list_display = ["title", 'country', "is_approved",'pub_date']
+    ordering = ["is_approved",'pub_date']
+    readonly_fields=('translated',)
 
     def save_model(self, request, obj, form, change):
         if obj.is_approved:

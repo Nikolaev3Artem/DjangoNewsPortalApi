@@ -54,7 +54,7 @@ class Command(BaseCommand):
                     if requests.get(news['image_url']).status_code == 200:
                         news_img = news['image_url']
                     else:
-                        news_img = "Status code is not valid!"
+                        news_img = "http://82.180.160.12:8000/news/management/commands/parse_news_img/image_not_found.jpg"
                     News.objects.create(
                         title = news['title'], 
                         link = news['link'],
