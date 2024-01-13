@@ -120,9 +120,11 @@ class News(models.Model):
         return self.title
 
     def rating_avg(self):
-        # value = self.rating_set.aggregate(Avg('rate')).get('rate__avg', 0.0)
-        # return round(value, 1)
-        return 5
+        value = self.rating_set.aggregate(Avg('rate')).get('rate__avg', 0.0)
+        if value is not None:
+           return round(value, 1)
+        else:
+            return 0
 
 
 class Rating(models.Model):
