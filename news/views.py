@@ -625,7 +625,7 @@ class CommentList(viewsets.ModelViewSet):
     )
     def retrieve(self, request, news__id):
         queryset = Comment.objects.all()
-        queryset = queryset.filter(news__id=news__id)
+        queryset = queryset.filter(news__id=news__id)[::-1]
         serializer = CommentSerializer(queryset, many=True)
 
         return Response(serializer.data)
