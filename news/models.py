@@ -113,7 +113,7 @@ class News(models.Model):
     translated = models.BooleanField(default=False, editable=False)
 
     class Meta:
-        verbose_name = "Новина"
+        verbose_name = "Новости"
         verbose_name_plural = "Новини"
 
     def __str__(self):
