@@ -1,0 +1,1 @@
+python3 /home/news-portal/news_portal/news_portal/manage.py auto_translate
