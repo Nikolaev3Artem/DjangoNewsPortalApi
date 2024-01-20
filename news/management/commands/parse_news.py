@@ -22,51 +22,47 @@ class Command(BaseCommand):
         try:                
             url = f'https://newsdata.io/api/1/news?apikey={self.API_KEY}&category=technology&language=en'
             response = requests.get(url)
-            api_key_requests_counter += 1
             data = response.json()
-            for news in data['results']:
-                if news == "message":
-                    raise Exception('Invalid data: ' . json.dumps(data, indent=4))
-                
-                if news['image_url'] and \
-                    len(news['content']) != 0 and \
-                    news['pubDate'] and \
-                    news['description'] and \
-                    news['country'] and \
-                    news['image_url'][0:5] == 'https':
-                    # print(f" \
-                    #     Link: {news['link']} \n\
-                    #     Title: {news['title']} \n\
-                    #     Image Url: {news['image_url']} \n\
-                    #     Content: {news['content']} \n\
-                    #     Creator: {news['creator']} \n\
-                    #     Pub Date: {news['pubDate']} \n\
-                    #     Description: {news['description']} \n\
-                    #     Country: {news['country']}\n\n\n")
-                        
-                    if news['creator']:
-                        creators = ""
-                        for creator in news['creator']:
-                            creator += creators
-                    else:
-                        creators = news['creator']
-
-                    if requests.get(news['image_url']).status_code == 200:
-                        news_img = news['image_url']
-                    else:
-                        news_img = "http://82.180.160.12:8000/news/management/commands/parse_news_img/image_not_found.jpg"
-                    News.objects.create(
-                        title = news['title'], 
-                        link = news['link'],
-                        news_creator = creators,
-                        image_url = news_img,
-                        pub_date = news['pubDate'],
-                        update_date = news['pubDate'],
-                        description = news['description'],
-                        country = news['country'],
-                        content = news['content'],
-                        time_to_read = text_to_time(news['content'])
-                    )                     
+            if data['status'] != "error":
+                for news in data['results']:
+                    if news['image_url'] and \
+                        len(news['content']) != 0 and \
+                        news['pubDate'] and \
+                        news['description'] and \
+                        news['image_url'][0:5] == 'https':
+                        # print(f" \
+                        #     Link: {news['link']} \n\
+                        #     Title: {news['title']} \n\
+                        #     Image Url: {news['image_url']} \n\
+                        #     Content: {news['content']} \n\
+                        #     Creator: {news['creator']} \n\
+                        #     Pub Date: {news['pubDate']} \n\
+                        #     Description: {news['description']} \n\
+                        #     Country: {news['country']}\n\n\n")
+                            
+                        if news['creator']:
+                            creators = ""
+                            for creator in news['creator']:
+                                creator += creators
+                        else:
+                            creators = news['creator']
+                            
+                        if requests.get(news['image_url']).status_code == 200:
+                            news_img = news['image_url']
+                        else:
+                            news_img = "http://82.180.160.12:8000/news/management/commands/parse_news_img/image_not_found.jpg"
+                        News.objects.create(
+                            title = news['title'], 
+                            link = news['link'],
+                            news_creator = creators,
+                            image_url = news_img,
+                            pub_date = news['pubDate'],
+                            update_date = news['pubDate'],
+                            description = news['description'],
+                            country = news['country'],
+                            content = news['content'],
+                            time_to_read = text_to_time(news['content'])
+                        )                     
         except Exception as e:
             print(f'Error: {e}')
         
