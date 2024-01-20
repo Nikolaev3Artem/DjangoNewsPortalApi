@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 import requests
 import os
-from news.models import News, TranslationKeys, Categories
+from news.models import News, TranslationKeys, Categories, Author
 import datetime
 import random
 
@@ -78,8 +78,10 @@ class Command(BaseCommand):
             chosen_news.content = translate_content(chosen_news.content)
             chosen_news.translated = True
             chosen_news.is_approved = True
- 
-            
             chosen_news.save()
-            chosen_news.categories.add(2)
+            news_category = Categories.objects.get(title="news").id
+            chosen_news.categories.add(news_category)
+
+            news_author = Author.objects.get(name="Команда Simple IT News")
+            News.objects.all().filter(title=chosen_news.title).update(author = news_author)
             print(chosen_news)
