@@ -68,6 +68,8 @@ class Command(BaseCommand):
             chosen_news.description = translate['key_2']
             chosen_news.content = translate_content(chosen_news.content)
             chosen_news.translated = True
+            chosen_news.is_approved = True
+            chosen_news.custom_url = ' '.join(chosen_news.title.split(' ')[:-1])
             chosen_news.save()
-            print(random.choice(news))
+            print(chosen_news)
         print(str(datetime.datetime.now())[0:10])
