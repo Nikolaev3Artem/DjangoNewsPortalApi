@@ -82,5 +82,4 @@ class Command(BaseCommand):
             
             chosen_news.save()
             chosen_news.categories.add(2)
-
             print(chosen_news)

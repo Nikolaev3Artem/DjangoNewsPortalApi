@@ -1,6 +1,8 @@
 from django.db import models
-from django.contrib import admin
+from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class Categories(models.Model):
     id = models.AutoField(primary_key=True)
@@ -57,23 +59,41 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def news_count(self):
-        return News.objects.all().filter(author__name = self.name).count()
-    
-class Rating(models.Model):
-    user_email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
-    rating = models.IntegerField(_('Рейтинг'))
+        return News.objects.all().filter(author__name=self.name).count()
+
+
+# class Rating(models.Model):
+#     user_email = models.CharField(_('Емейл'), max_length=100, null=False, unique=True)
+#     rating = models.IntegerField(_('Рейтинг'))
+#
+#     def __str__(self):
+#         return self.rating
+
+
+class NewsUser(models.Model):
+    id = models.AutoField(primary_key=True)
+    first_name = models.CharField(_('Имя'), max_length=100, null=True, blank=True)
+    surname = models.CharField(_('Фамилия'), max_length=100, null=True, blank=True)
+    profile_image = models.CharField(_('Картинка профиля'), max_length=500, null=True, blank=True)
+    email = models.CharField(_('Емейл'), max_length=100, null=False, unique=True)
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+
     def __str__(self):
-        return self.rating
+        return self.email
+
 
 class News(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField( _('Назва'), max_length=150, null=True)
+    title = models.CharField(_('Назва'), max_length=150, null=True)
     news_creator = models.CharField(_('Власник(и) новини'), max_length=300, blank=True, null=True)
     author = models.ForeignKey(
         Author, on_delete=models.CASCADE, null=True, blank=True)
-    link = models.CharField(_('Посилання'), max_length=200,blank=True, null=True, unique=True)
+    link = models.CharField(_('Посилання'), max_length=200, blank=True, null=True, unique=True)
     image_url = models.CharField(_('Посилання на картинку'), max_length=500, null=True, blank=True)
     description = models.TextField(_('Опис'), max_length=800, null=True, blank=True)
     pub_date = models.CharField(_('Дата публікації'), max_length=100, null=True, blank=True)
@@ -81,64 +101,68 @@ class News(models.Model):
     country = models.CharField(_('Країна'), max_length=50, null=True, blank=True)
     content = models.TextField(_('Контент'), max_length=7000, null=True)
     custom_url = models.CharField(
-        _('Кастомне посилання'), 
+        _('Кастомне посилання'),
         max_length=50, default=None, unique=True, null=True)
-    tags = models.ManyToManyField(Tags,blank=True)
+    tags = models.ManyToManyField(Tags, blank=True)
     categories = models.ManyToManyField(Categories, blank=True)
     time_to_read = models.IntegerField(_('Час прочитання'), blank=True, null=True)
-    news_rating = models.ManyToManyField(Rating,related_name='news_rating', blank=True)
+    ratings = models.ManyToManyField('NewsUser', through='Rating', related_name='rated_news')
+
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
     translated = models.BooleanField(default=False, editable=False)
 
     class Meta:
-        verbose_name = "Новина"
+        verbose_name = "Новости"
         verbose_name_plural = "Новини"
 
     def __str__(self):
         return self.title
-    
+
     def rating_avg(self):
-        return 5 #sum(self.rating) / self.rating.count()
+        value = self.rating_set.aggregate(Avg('rate')).get('rate__avg', 0.0)
+        if value is not None:
+           return round(value, 1)
+        else:
+            return 0
+
+
+class Rating(models.Model):
+    rate = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
+    news = models.ForeignKey(News, on_delete=models.CASCADE)
+    user = models.ForeignKey(NewsUser, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [['news', 'user']]
+
 
 class TranslationKeys(models.Model):
-    key = models.CharField(_('Ключ'),max_length=2000, null=True)
+    key = models.CharField(_('Ключ'), max_length=2000, null=True)
     requests = models.IntegerField(_('Використано запросів'), default=0)
     active = models.BooleanField(_('Ключ який використовується зараз'), default=False)
+
     class Meta:
         verbose_name = "Ключ для перекладу"
         verbose_name_plural = "Ключі для перекладу"
 
     def __str__(self):
         return self.key
-    
-class NewsUser(models.Model):
-    id = models.AutoField(primary_key=True)
-    first_name = models.CharField(_('Имя'),max_length=100, null=True, blank=True)
-    surname = models.CharField(_('Фамилия'),max_length=100, null=True, blank=True)
-    profile_image = models.CharField(_('Картинка профиля'),max_length=500, null=True, blank=True)
-    email = models.CharField(_('Емейл'),max_length=100, null=False, unique=True)
 
-    class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
-    
-    def __str__(self):
-        return self.email
-    
+
 class SavedNews(models.Model):
     news_custom_url = models.CharField(
         _('Кастомне посилання'), null=True)
     newsuser = models.ForeignKey(NewsUser, on_delete=models.CASCADE, blank=True)
-    
+
     def __str__(self):
         return self.news_custom_url
-    
+
+
 class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(NewsUser, related_name='comments', on_delete=models.CASCADE)
     news = models.ForeignKey('News', related_name='comments', on_delete=models.CASCADE)
     body = models.TextField(blank=False)
-    
+
     def __str__(self):
         return self.author

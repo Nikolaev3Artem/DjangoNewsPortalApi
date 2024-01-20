@@ -1,5 +1,15 @@
-from .models import News, Author, Tags, Categories, NewsUser, Comment, Rating, SavedNews
+from .models import (
+    News,
+    Author,
+    Tags,
+    Categories,
+    NewsUser,
+    Comment,
+    # Rating,
+    SavedNews
+)
 from rest_framework import serializers
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     """
@@ -17,10 +27,11 @@ class AuthorSerializer(serializers.ModelSerializer):
         - telegram - ссылка на телеграм
     """
     news_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Author
 
-        fields = ('name', 'description','facebook','twitter','telegram','rating','news_count')
+        fields = ('name', 'description', 'facebook', 'twitter', 'telegram', 'rating', 'news_count')
         depth = 1
 
     def news_count(self, obj):
@@ -103,12 +114,14 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
 
-        fields = ['id', 'title','author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating','rating_avg', 'categories', 'time_to_read', 'custom_url', 'is_approved']
+        fields = ['id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
+                  'update_date', 'country', 'content', 'tags', 'rating_avg', 'categories', 'time_to_read',
+                  'custom_url', 'is_approved']
         depth = 2
-        
+
     def rating_avg(self, obj):
         return obj.rating_avg()
+
 
 class SingleNewsSerializer(serializers.ModelSerializer):
     """
@@ -143,15 +156,17 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         model = News
 
         fields = ['id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url', 'is_approved']
+                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url',
+                  'is_approved']
         depth = 2
 
+
 class NewsUserSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = NewsUser
-        fields = ('id','first_name', 'surname', 'profile_image', 'email')
+        fields = ('id', 'first_name', 'surname', 'profile_image', 'email')
         depth = 2
+
 
 class CommentSerializer(serializers.ModelSerializer):
     """
@@ -166,13 +181,15 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'created', 'body', 'author', 'news_id']
         depth = 2
 
-class RatingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rating
-        fields = ['news_id','user_email','rating']
-        depth = 2
-        
+
+# class RatingSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Rating
+#         fields = ['news_id', 'user_email', 'rating']
+#         depth = 2
+
+
 class SavedNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavedNews
-        fields = ['news_custom_url','newsuser__name']
+        fields = ['news_custom_url', 'newsuser__name']
