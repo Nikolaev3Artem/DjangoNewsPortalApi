@@ -151,15 +151,17 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         - custom_url - ссылка на новость
         - time_to_read - время прочитывания статьи
     """
+    rating_avg = serializers.SerializerMethodField()
 
     class Meta:
         model = News
 
         fields = ['id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating', 'categories', 'time_to_read', 'custom_url',
+                  'update_date', 'country', 'content', 'tags', 'rating_avg', 'categories', 'time_to_read', 'custom_url',
                   'is_approved']
         depth = 2
-
+    def rating_avg(self, obj):
+        return obj.rating_avg()
 
 class NewsUserSerializer(serializers.ModelSerializer):
     class Meta:
