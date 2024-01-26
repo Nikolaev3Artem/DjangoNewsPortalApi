@@ -110,7 +110,7 @@ class News(models.Model):
 
     img_alt = models.CharField(_('Альтернативна назва картинки'), max_length=300, default=None, null=True, blank=True)
     is_approved = models.BooleanField(_('Підтвердження валідності новини для її виставлення'), default=False)
-    translated = models.BooleanField(default=False, editable=False)
+    translated = models.BooleanField(default=False, editable=True)
 
     class Meta:
         verbose_name = "Новости"
