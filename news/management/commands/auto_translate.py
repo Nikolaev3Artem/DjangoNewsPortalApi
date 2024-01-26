@@ -14,7 +14,7 @@ if TranslationKeys.objects.get(active=True).requests == 300:
     API_KEY = TranslationKeys.objects.get(active=True).update(active=False)
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": API_KEY[0].key,
+    headers = {"X-RapidAPI-Key": API_KEY.key,
             "X-RapidAPI-Host": API_HOST}
     i = 0
     requests_counter = 0
