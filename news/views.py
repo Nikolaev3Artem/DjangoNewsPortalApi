@@ -350,7 +350,14 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             obj.delete()
             return Response(status=status.HTTP_200_OK, data="Deleted!")
         return Response(status=status.HTTP_404_NOT_FOUND, data="User not liked news")
-
+    
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление всех не подтвержденных новостей.'),
+        },
+        operation_summary='Удаление всех не подтвержденных новостей',
+        tags=['Подтвержденные Новости'],
+    )
     @action(detail=True, methods=['delete'])
     def deletenotpostednews(self, request):
         news = News.objects.filter(is_approved=False)
