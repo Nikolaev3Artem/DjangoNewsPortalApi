@@ -69,7 +69,7 @@ class Command(BaseCommand):
     help = 'Translating parsed news'
     
     def handle(self, *args, **options):
-        news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:10]} 00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]} 23:59:59', translated=False)
+        news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:10]}T00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]}T23:59:59', translated=False)
         print(news)
         print(f'{str(datetime.datetime.now())[0:9]} 00:00:00')
         print(f'{str(datetime.datetime.now())[0:9]} 23:59:59')
