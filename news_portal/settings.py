@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'news',
+    'parse_news',
 
     'drf_yasg',
     'rest_framework',
