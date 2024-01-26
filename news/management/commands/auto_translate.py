@@ -11,7 +11,7 @@ load_dotenv()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 if TranslationKeys.objects.get(active=True).requests >= 300:
-    API_KEY = TranslationKeys.objects.get(active=True).update(active=False)
+    API_KEY = TranslationKeys.objects.get(active=True).active=False
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
     headers = {"X-RapidAPI-Key": API_KEY.key,
