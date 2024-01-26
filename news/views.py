@@ -351,6 +351,13 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK, data="Deleted!")
         return Response(status=status.HTTP_404_NOT_FOUND, data="User not liked news")
 
+    @action(detail=True, methods=['delete'])
+    def deletenotpostednews(self, request):
+        news = News.objects.filter(is_approved=False)
+        for i in news:
+            i.delete()
+        return 200
+
 
 class RandomApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)
