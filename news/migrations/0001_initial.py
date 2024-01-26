@@ -118,14 +118,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Ключі для перекладу',
             },
         ),
-        migrations.CreateModel(
-            name='SavedNews',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('news_custom_url', models.CharField(null=True, verbose_name='Кастомне посилання')),
-                ('newsuser', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.CASCADE, to='news.newsuser')),
-            ],
-        ),
+
         migrations.CreateModel(
             name='Rating',
             fields=[
