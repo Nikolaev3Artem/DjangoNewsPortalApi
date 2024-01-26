@@ -70,10 +70,12 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:9]} 00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]} 23:59:59', translated=False)
+        print(news)
         for i in range(0,3):
-
+            print(f'i: {i}')
             if len(news) != 0:
                 chosen_news = random.choice(news)
+                print(f"Chosen news: {chosen_news}")
                 chosen_news.custom_url = ' '.join(chosen_news.title.split(' ')[0:4])
 
                 temp_url = ''
@@ -82,10 +84,10 @@ class Command(BaseCommand):
                         temp_url += var
                 chosen_news.custom_url = temp_url.lower().replace(' ','-')
 
-                translate = translate_text([chosen_news.title, chosen_news.description])
-                chosen_news.title = translate['key_1']
-                chosen_news.description = translate['key_2']
-                chosen_news.content = translate_content(chosen_news.content)
+                # translate = translate_text([chosen_news.title, chosen_news.description])
+                # chosen_news.title = translate['key_1']
+                # chosen_news.description = translate['key_2']
+                # chosen_news.content = translate_content(chosen_news.content)
                 chosen_news.translated = True
                 chosen_news.is_approved = True
                 chosen_news.save()
