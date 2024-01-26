@@ -10,7 +10,8 @@ import requests
 load_dotenv()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
-API_KEY = TranslationKeys.objects.all().filter(active=True)
+if TranslationKeys.objects.get(active=True).requests == 300:
+    API_KEY = TranslationKeys.objects.get(active=True).update(active=False)
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
     headers = {"X-RapidAPI-Key": API_KEY[0].key,
@@ -25,24 +26,24 @@ def translate_content(data):
         translated_content += response.json()['translated_text']['uk']
         i += 1000
         requests_counter += 1
-    requests_counter += API_KEY[0].requests
+    requests_counter += API_KEY.requests
     API_KEY.update(requests = requests_counter)
 
     return translated_content
  
 def translate_text(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    if len(data) == 2:
+    if len(data) == 2:  
         querystring = {
             "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
     else:
         querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": API_KEY[0].key,
+    headers = {"X-RapidAPI-Key": API_KEY.key,
             "X-RapidAPI-Host": API_HOST}
     response = requests.get(url, headers=headers, params=querystring)
     
     requests_counter = 0
-    requests_counter += API_KEY[0].requests
+    requests_counter += API_KEY.requests
     API_KEY.update(requests = requests_counter)
     result = {}
     temp_word = ""
