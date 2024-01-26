@@ -10,7 +10,7 @@ import requests
 load_dotenv()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
-if TranslationKeys.objects.get(active=True).requests == 300:
+if TranslationKeys.objects.get(active=True).requests >= 300:
     API_KEY = TranslationKeys.objects.get(active=True).update(active=False)
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
