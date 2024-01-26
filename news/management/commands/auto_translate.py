@@ -71,8 +71,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:10]}T00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]}T23:59:59', translated=False)
         print(news)
+<<<<<<< HEAD
         print(f'{str(datetime.datetime.now())[0:9]} 00:00:00')
         print(f'{str(datetime.datetime.now())[0:9]} 23:59:59')
+=======
+  
+>>>>>>> 1fa908f (123)
         for i in range(0,3):
             print(f'i: {i}')
             if len(news) != 0:
