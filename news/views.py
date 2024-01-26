@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
 
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, \
     NewsUserSerializer, CommentSerializer, SavedNewsSerializer
@@ -137,6 +138,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)
     serializer_class = NewsSerializer
     lookup_field = 'custom_url'
+    http_method_names = ['get', 'post', 'delete']
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -250,19 +252,19 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         request_body=openapi.Schema(
             type='object',
             properties={
-                'email': openapi.Schema(type='string', description='Емейл пользователя'),
+                'user_id': openapi.Schema(type='string', description='Айди пользователя'),
             },
-            required=['email'],
+            required=['user_id'],
         ),
     )
     @action(detail=True, methods=['post'])
     def save(self, request, custom_url=None):
-        email = request.data['email']
-        news = News.objects.get(custom_url=custom_url)
-        user = NewsUser.objects.get(email=email)
+        user_id = request.data['user_id']
+        news = News.objects.get(custom_url=custom_url, is_approved=True)
+        user = NewsUser.objects.get(id=user_id)
         SavedNews.objects.create(
-            news_custom_url=news.custom_url,
-            newsuser=user,
+            news=news,
+            user=user,
         )
         return Response(status=200)
 
@@ -275,17 +277,16 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         request_body=openapi.Schema(
             type='object',
             properties={
-                'email': openapi.Schema(type='string', description='Емейл пользователя'),
+                'user_id': openapi.Schema(type='string', description='Емейл пользователя'),
             },
-            required=['email'],
+            required=['user_id'],
         ),
     )
     @action(detail=True, methods=['delete'])
     def unsave(self, request, custom_url=None):
-        email = request.data['email']
+        user_id = request.data['user_id']
         news = News.objects.get(custom_url=custom_url)
-        user = NewsUser.objects.get(email=email)
-        user.saved_news.get(news_custom_url=news.custom_url).delete()
+        SavedNews.objects.get(user__id=user_id, news__custom_url=news.custom_url).delete()
         return Response(status=status.HTTP_200_OK, data="Deleted!")
 
     @swagger_auto_schema(
@@ -298,21 +299,21 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             type='object',
             properties={
                 'rating': openapi.Schema(type='integer', description='Выставленный рейтинг'),
-                'user_email': openapi.Schema(type='string', description='Емейл пользователя'),
+                'user_id': openapi.Schema(type='string', description='Емейл пользователя'),
             },
-            required=['user_email', 'rating', 'custom_url'],
+            required=['user_id', 'rating', 'custom_url'],
         )
     )
     @action(detail=True, methods=['post'])
     def rate(self, request, custom_url=None):
         rating = request.data['rating'] or 0
-        user_email = request.data['user_email']
-        if not all((custom_url, user_email)):
+        user_id = request.data['user_id']
+        if not all((custom_url, user_id)):
             return Response(status=status.HTTP_404_NOT_FOUND, data="Not vali data")
         news = News.objects.filter(custom_url=custom_url).first()
         if not news:
             return Response(status=status.HTTP_404_NOT_FOUND, data="News not found!")
-        user = NewsUser.objects.get(email=user_email)
+        user = NewsUser.objects.get(id=user_id)
         if not news:
             return Response(status=status.HTTP_404_NOT_FOUND, data="User not found!")
         try:
@@ -336,15 +337,15 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         request_body=openapi.Schema(
             type='object',
             properties={
-                'user_email': openapi.Schema(type='string', description='Емейл пользователя'),
+                'user_id': openapi.Schema(type='string', description='Емейл пользователя'),
             },
-            required=['user_email', 'rating'],
+            required=['user_id', 'rating'],
         )
     )
     @action(detail=True, methods=['delete'])
     def unrate(self, request, custom_url=None):
-        user_email = request.data['user_email']
-        obj = Rating.objects.filter(user__email=user_email, news__custom_url=custom_url).first()
+        user_id = request.data['user_id']
+        obj = Rating.objects.filter(user__id=user_id, news__custom_url=custom_url).first()
         if obj:
             obj.delete()
             return Response(status=status.HTTP_200_OK, data="Deleted!")
@@ -533,11 +534,10 @@ class AuthorList(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class NewsUserViewSet(viewsets.ModelViewSet):
+class NewsUserList(viewsets.ModelViewSet):
     queryset = NewsUser.objects.all()
     serializer_class = NewsUserSerializer
     http_method_names = ['get', 'post']
-    lookup_field = 'email'
 
     @swagger_auto_schema(
         responses={
@@ -589,15 +589,24 @@ class NewsUserViewSet(viewsets.ModelViewSet):
                 return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
         return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, email=None):
-        print(123)
-        if email is not None:
-            queryset = NewsUser.objects.filter(email=email)
-            serializer = NewsUserSerializer(queryset, many=True)
-            if queryset.count() != 0:
-                return Response(data=serializer.data, status=200)
-            else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Пользователь.'),
+        },
+        operation_summary='Получение пользователя по его емейлу.',
+        operation_description=
+        """
+            Возвращает пользователя.
+        """,
+        tags=['Пользователи'],
+    )
+    def retrieve(self, request, pk=None):
+        if pk is not None:
+            queryset = NewsUser.objects.get(id=pk)
+            serializer = NewsUserSerializer(queryset)
+            return Response(data=serializer.data, status=200)
+            # else:
+                # return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
         responses={
@@ -607,9 +616,10 @@ class NewsUserViewSet(viewsets.ModelViewSet):
         tags=['Пользователи'],
     )
     @action(detail=True, methods=['get'])
-    def saved_news(self, request, email=None):
-        # queryset = SavedNews.objects.filter(newsuser__email = email)
-        print(email)
+    def saved_news(self, request, pk=None):
+        queryset = SavedNews.objects.filter(user__id = pk)
+        serializer = SavedNewsSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class CommentList(viewsets.ModelViewSet):

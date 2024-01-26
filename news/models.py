@@ -77,7 +77,7 @@ class NewsUser(models.Model):
     first_name = models.CharField(_('Имя'), max_length=100, null=True, blank=True)
     surname = models.CharField(_('Фамилия'), max_length=100, null=True, blank=True)
     profile_image = models.CharField(_('Картинка профиля'), max_length=500, null=True, blank=True)
-    email = models.CharField(_('Емейл'), max_length=100, null=False, unique=True)
+    email = models.EmailField(_('Емейл'), max_length=100, null=False, unique=True)
 
     class Meta:
         verbose_name = "Пользователь"
@@ -150,9 +150,8 @@ class TranslationKeys(models.Model):
 
 
 class SavedNews(models.Model):
-    news_custom_url = models.CharField(
-        _('Кастомне посилання'), null=True)
-    newsuser = models.ForeignKey(NewsUser, on_delete=models.CASCADE, blank=True)
+    news = models.ForeignKey(News, on_delete=models.CASCADE, blank=True, unique=True)
+    user = models.ForeignKey(NewsUser, on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
         return self.news_custom_url
