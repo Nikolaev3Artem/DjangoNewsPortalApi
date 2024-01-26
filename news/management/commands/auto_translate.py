@@ -8,13 +8,21 @@ import random
 from dotenv import load_dotenv
 import requests
 load_dotenv()
-
+# key = TranslationKeys.objects.get(active=True)
+# key.requests = 302
+# key.save(['requests'])
 API_HOST = os.getenv('TRANSLATE_API_HOST')
+API_KEY = TranslationKeys.objects.filter(active=True)
+
 if TranslationKeys.objects.get(active=True).requests >= 300:
-    API_KEY = TranslationKeys.objects.get(active=True).active=False
+    API_KEY.update(active=False)
+
+if str(datetime.datetime.now())[8:10] == 00:
+    TranslationKeys.objects.all().update(requests=0)
+    
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": API_KEY.key,
+    headers = {"X-RapidAPI-Key": API_KEY[0].key,
             "X-RapidAPI-Host": API_HOST}
     i = 0
     requests_counter = 0
@@ -26,7 +34,7 @@ def translate_content(data):
         translated_content += response.json()['translated_text']['uk']
         i += 1000
         requests_counter += 1
-    requests_counter += API_KEY.requests
+    requests_counter += API_KEY[0].requests
     API_KEY.update(requests = requests_counter)
 
     return translated_content
@@ -38,12 +46,12 @@ def translate_text(data):
             "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
     else:
         querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": API_KEY.key,
+    headers = {"X-RapidAPI-Key": API_KEY[0].key,
             "X-RapidAPI-Host": API_HOST}
     response = requests.get(url, headers=headers, params=querystring)
     
     requests_counter = 0
-    requests_counter += API_KEY.requests
+    requests_counter += API_KEY[0].requests
     API_KEY.update(requests = requests_counter)
     result = {}
     temp_word = ""
@@ -63,26 +71,27 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:10]} 00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]} 23:59:59')
         for i in range(0,3):
-            chosen_news = random.choice(news)
+            if len(news) != 0:
+                chosen_news = random.choice(news)
 
-            chosen_news.custom_url = ' '.join(chosen_news.title.split(' ')[0:4])
+                chosen_news.custom_url = ' '.join(chosen_news.title.split(' ')[0:4])
 
-            temp_url = ''
-            for var in chosen_news.custom_url:
-                if var.isalnum() or var == '-':
-                    temp_url += var
-            chosen_news.custom_url = temp_url.lower().replace(' ','-')
+                temp_url = ''
+                for var in chosen_news.custom_url:
+                    if var.isalnum() or var == '-':
+                        temp_url += var
+                chosen_news.custom_url = temp_url.lower().replace(' ','-')
 
-            translate = translate_text([chosen_news.title, chosen_news.description])
-            chosen_news.title = translate['key_1']
-            chosen_news.description = translate['key_2']
-            chosen_news.content = translate_content(chosen_news.content)
-            chosen_news.translated = True
-            chosen_news.is_approved = True
-            chosen_news.save()
-            news_category = Categories.objects.get(title="news").id
-            chosen_news.categories.add(news_category)
+                translate = translate_text([chosen_news.title, chosen_news.description])
+                chosen_news.title = translate['key_1']
+                chosen_news.description = translate['key_2']
+                chosen_news.content = translate_content(chosen_news.content)
+                chosen_news.translated = True
+                chosen_news.is_approved = True
+                chosen_news.save()
+                news_category = Categories.objects.get(title="news").id
+                chosen_news.categories.add(news_category)
 
-            news_author = Author.objects.get(name="Команда Simple IT News")
-            News.objects.all().filter(title=chosen_news.title).update(author = news_author)
-            print(chosen_news)
+                news_author = Author.objects.get(name="Команда Simple IT News")
+                News.objects.all().filter(title=chosen_news.title).update(author = news_author)
+                print(chosen_news)
