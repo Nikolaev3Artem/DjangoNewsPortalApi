@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from news.models import News
+from news.models import News, Author, Categories
 import os
 from dotenv import load_dotenv
 import requests
@@ -37,10 +37,15 @@ class Command(BaseCommand):
                             image = news['props']['image']
                         except:
                             image = 'Not found'
+                        
+                        news_author = Author.objects.get(name="Команда Simple IT News")
+                        news_category = Categories.objects.get(title="news").id
                         try:
                             News.objects.create(
                                 title = news['title'],
                                 link = news['link'],
+                                author= news_author,
+                                categories = news_category,
                                 image_url = image,
                                 pub_date = news['date'][0:19],
                                 update_date = news['date'][0:19],

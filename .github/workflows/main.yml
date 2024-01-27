@@ -25,5 +25,7 @@ jobs:
         script: |
           cd news_portal/news_portal/
           git pull origin main
+          sudo chmod 777 parse.sh
+          sudo chmod 777 translate.sh
           pip3 install -r requirements.txt
           python3 manage.py migrate
