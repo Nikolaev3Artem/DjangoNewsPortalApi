@@ -115,7 +115,7 @@ class NewsSerializer(serializers.ModelSerializer):
         model = News
 
         fields = ['id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating_avg', 'categories', 'time_to_read',
+                  'update_date', 'content', 'tags', 'rating_avg', 'categories', 'time_to_read',
                   'custom_url', 'is_approved']
         depth = 2
 
@@ -157,7 +157,7 @@ class SingleNewsSerializer(serializers.ModelSerializer):
         model = News
 
         fields = ['id', 'title', 'author', 'link', 'image_url', 'description', 'pub_date',
-                  'update_date', 'country', 'content', 'tags', 'rating_avg', 'categories', 'time_to_read', 'custom_url',
+                  'update_date', 'content', 'tags', 'rating_avg', 'categories', 'time_to_read', 'custom_url',
                   'is_approved']
         depth = 2
     def rating_avg(self, obj):

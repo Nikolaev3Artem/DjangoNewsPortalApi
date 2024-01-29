@@ -578,13 +578,13 @@ class NewsUserList(viewsets.ModelViewSet):
         user_data = request.data
         if user_data['email'] != "string":
             if not NewsUser.objects.all().filter(email=user_data['email']):
-                NewsUser.objects.create(
+                user = NewsUser.objects.create(
                     first_name=user_data['first_name'],
                     surname=user_data['surname'],
                     profile_image=user_data['profile_image'],
                     email=user_data['email'],
                 )
-                return Response(data="User created", status=status.HTTP_201_CREATED)
+                return Response(data=user.id, status=status.HTTP_201_CREATED)
             else:
                 return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
         return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
