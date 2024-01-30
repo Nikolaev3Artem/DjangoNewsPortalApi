@@ -1,8 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.decorators import api_view
-from django.shortcuts import get_object_or_404
 
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, \
     NewsUserSerializer, CommentSerializer, SavedNewsSerializer
@@ -21,8 +19,6 @@ from .models import (
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import random
-import json
-
 
 class NewsList(viewsets.ModelViewSet):
     queryset = News.objects.all()
