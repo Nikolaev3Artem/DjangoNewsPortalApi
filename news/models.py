@@ -89,7 +89,7 @@ class NewsUser(models.Model):
 
 class News(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(_('Назва'), max_length=150, null=True)
+    title = models.CharField(_('Назва'), max_length=300, null=True)
     news_creator = models.CharField(_('Власник(и) новини'), max_length=300, blank=True, null=True)
     author = models.ForeignKey(
         Author, on_delete=models.CASCADE, null=True, blank=True)

@@ -40,20 +40,21 @@ class Command(BaseCommand):
                         
                         news_author = Author.objects.get(name="Команда Simple IT News")
                         news_category = Categories.objects.get(title="news").id
-                        try:
-                            News.objects.create(
-                                title = news['title'],
-                                link = news['link'],
-                                author= news_author,
-                                categories = news_category,
-                                image_url = image,
-                                pub_date = news['date'][0:19],
-                                update_date = news['date'][0:19],
-                                description = news['description'],
-                                content = content,
-                                time_to_read = text_to_time(content)
-                            )
-                        except:
-                            continue
+                        # try:
+                        news = News.objects.create(
+                            title = news['title'],
+                            link = news['link'],
+                            author= news_author,
+                            image_url = image,
+                            pub_date = news['date'][0:19],
+                            update_date = news['date'][0:19],
+                            description = news['description'],
+                            content = content,
+                            time_to_read = text_to_time(content)
+                        )
+                        news.categories.add(news_category)
+
+                        # except:
+                        #     continue
         except Exception as error:
             print(f"KeyError: {error}")
