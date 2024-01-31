@@ -582,8 +582,10 @@ class NewsUserList(viewsets.ModelViewSet):
                 )
                 return Response(data=user.id, status=status.HTTP_201_CREATED)
             else:
-                return Response(data="User already created", status=status.HTTP_403_FORBIDDEN)
-        return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+                user = NewsUser.objects.get(email=user_data['email'])
+                serializer = NewsUserSerializer(user)
+                return Response(data=serializer.data, status=status.HTTP_409_CONFLICT)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(
         responses={
