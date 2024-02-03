@@ -75,11 +75,7 @@ class Command(BaseCommand):
                 chosen_news = random.choice(news)
                 chosen_news.custom_url = chosen_news.title
                 
-                temp_url = ''
-                for var in chosen_news.custom_url.split()[0:4]:
-                    if var.isalnum() or var == '-':
-                        temp_url += '-' + var 
-                chosen_news.custom_url = temp_url.lower().replace(' ','-')
+
 
                 translate = translate_text([chosen_news.title, chosen_news.description])
                 chosen_news.title = translate['key_1']

@@ -36,11 +36,16 @@ class Command(BaseCommand):
                         try:
                             image = news['props']['image']
                         except:
-                            image = 'Not found'
+                            image = ''
                         
                         news_author = Author.objects.get(name="Команда Simple IT News")
                         news_category = Categories.objects.get(title="news").id
                         # try:
+                        temp_url = ''
+                        for var in news['title'].split()[0:4]:
+                            if var.isalnum() or var == '-':
+                                temp_url += '-' + var 
+                        custom_url = temp_url.lower().replace(' ','-')
                         news = News.objects.create(
                             title = news['title'],
                             link = news['link'],
@@ -50,7 +55,8 @@ class Command(BaseCommand):
                             update_date = news['date'][0:19],
                             description = news['description'],
                             content = content,
-                            time_to_read = text_to_time(content)
+                            time_to_read = text_to_time(content),
+                            custom_url = custom_url
                         )
                         news.categories.add(news_category)
 
