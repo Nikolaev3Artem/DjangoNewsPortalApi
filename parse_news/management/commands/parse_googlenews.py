@@ -46,7 +46,6 @@ class Command(BaseCommand):
                         if var.isalnum() or var == '-':
                             temp_url += '-' + var 
                     custom_url = temp_url.lower().replace(' ','-')
-                    print(custom_url[1:-1])
                     news = News.objects.create(
                         title = news['title'],
                         link = news['link'],

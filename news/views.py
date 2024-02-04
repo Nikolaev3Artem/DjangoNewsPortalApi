@@ -566,8 +566,9 @@ class NewsUserList(viewsets.ModelViewSet):
                 'surname': openapi.Schema(type='string', description='Фамилия пользователя'),
                 'profile_image': openapi.Schema(type='string', description='Картинка профиля'),
                 'email': openapi.Schema(type='string', description='Емейл пользователя'),
+                'google_id': openapi.Schema(type='integer', description='Гугл айди пользователя'),
             },
-            required=['email'],
+            required=['email','google_id'],
         ),
     )
     def create(self, request):
@@ -579,8 +580,9 @@ class NewsUserList(viewsets.ModelViewSet):
                     surname=user_data['surname'],
                     profile_image=user_data['profile_image'],
                     email=user_data['email'],
+                    google_id=user_data['google_id'],
                 )
-                return Response(data=user.id, status=status.HTTP_201_CREATED)
+                return Response(data=user.google_id, status=status.HTTP_201_CREATED)
             else:
                 user = NewsUser.objects.get(email=user_data['email'])
                 serializer = NewsUserSerializer(user)
@@ -600,7 +602,7 @@ class NewsUserList(viewsets.ModelViewSet):
     )
     def retrieve(self, request, pk=None):
         if pk is not None:
-            queryset = NewsUser.objects.get(id=pk)
+            queryset = NewsUser.objects.get(google_id=pk)
             serializer = NewsUserSerializer(queryset)
             return Response(data=serializer.data, status=200)
             # else:
@@ -615,7 +617,7 @@ class NewsUserList(viewsets.ModelViewSet):
     )
     @action(detail=True, methods=['get'])
     def saved_news(self, request, pk=None):
-        queryset = SavedNews.objects.filter(user__id = pk)
+        queryset = SavedNews.objects.filter(user__google_id = pk)
         serializer = SavedNewsSerializer(queryset, many=True)
         return Response(serializer.data)
 
