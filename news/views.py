@@ -208,7 +208,6 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
-        print(page)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -348,6 +347,18 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK, data="Deleted!")
         return Response(status=status.HTTP_404_NOT_FOUND, data="User not liked news")
 
+    @swagger_auto_schema(
+        responses={
+            200: openapi.Response(description='Успешное удаление рейтинга.'),
+        },
+        operation_summary='Отправка постов в социальный сети',
+        tags=['Подтвержденные Новости'],
+    )
+    @action(detail=False, methods=['get'])
+    def social_posts(self, request):
+        queryset = News.objects.all().filter(is_approved=True, already_posted=False)
+        serializer = NewsSerializer(queryset, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class RandomApprovedNewsList(viewsets.ModelViewSet):
     queryset = News.objects.all().filter(is_approved=True)

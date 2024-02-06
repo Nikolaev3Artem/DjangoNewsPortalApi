@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
     'news',
     'parse_news',
+    'telegram_bot',
 
     'drf_yasg',
     'rest_framework',
