@@ -37,12 +37,15 @@ class Command(BaseCommand):
             if response.status_code == 200:
                 data = response.json()
                 for news in data:
-                    await bot.send_photo(TELEGRAM_CHANNEL_ID, photo=news['image_url'], caption=f"""
-<b>{news['title']}</b>\n
-{news['description']}\n
-{SIMPLE_IT_LINK}/news/{news['custom_url']}""", parse_mode='HTML')
-                    News.objects.filter(id = news['id']).update(already_posted=True)
-
+                    try:
+                        await bot.send_photo(TELEGRAM_CHANNEL_ID, photo=news['image_url'], caption=f"""
+    <b>{news['title']}</b>\n
+    {news['description']}\n
+    {SIMPLE_IT_LINK}/news/{news['custom_url']}""", parse_mode='HTML')
+                        News.objects.filter(id = news['id']).update(already_posted=True)
+                    except:
+                        continue
+                    
         sch.add_job(forever_check, "interval", seconds=7200)
 
         sch.start()
