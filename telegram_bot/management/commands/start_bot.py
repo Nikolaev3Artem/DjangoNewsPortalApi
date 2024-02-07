@@ -39,13 +39,13 @@ class Command(BaseCommand):
                 for news in data:
                     try:
                         await bot.send_photo(TELEGRAM_CHANNEL_ID, photo=news['image_url'], caption=f"""
-    <b>{news['title']}</b>\n
-    {news['description']}\n
-    {SIMPLE_IT_LINK}/news/{news['custom_url']}""", parse_mode='HTML')
+<b>{news['title']}</b>\n
+{news['description']}\n
+{SIMPLE_IT_LINK}/news/{news['custom_url']}""", parse_mode='HTML')
                         News.objects.filter(id = news['id']).update(already_posted=True)
                     except:
                         continue
-                    
+
         sch.add_job(forever_check, "interval", seconds=7200)
 
         sch.start()

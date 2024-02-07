@@ -72,10 +72,7 @@ class Command(BaseCommand):
         news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:10]}T00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]}T23:59:59', translated=False)
         for i in range(0,3):
             if len(news) != 0:
-                chosen_news = random.choice(news)
-                chosen_news.custom_url = chosen_news.title
-                
-
+                chosen_news = random.choice(news)                
 
                 translate = translate_text([chosen_news.title, chosen_news.description])
                 chosen_news.title = translate['key_1']
