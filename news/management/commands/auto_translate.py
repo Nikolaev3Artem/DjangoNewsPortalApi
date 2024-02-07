@@ -69,21 +69,18 @@ class Command(BaseCommand):
     help = 'Translating parsed news'
     
     def handle(self, *args, **options):
-        news = News.objects.all().filter(pub_date__gte = f'{str(datetime.datetime.now())[0:10]}T00:00:00', pub_date__lte = f'{str(datetime.datetime.now())[0:10]}T23:59:59', translated=False)
-        for i in range(0,3):
-            if len(news) != 0:
-                chosen_news = random.choice(news)                
-
-                translate = translate_text([chosen_news.title, chosen_news.description])
-                chosen_news.title = translate['key_1']
-                chosen_news.description = translate['key_2']
-                chosen_news.content = translate_content(chosen_news.content)
-                chosen_news.translated = True
-                chosen_news.is_approved = True
-                chosen_news.save()
-                news_category = Categories.objects.get(title="news").id
-                chosen_news.categories.add(news_category)
-
-                news_author = Author.objects.get(name="Команда Simple IT News")
-                News.objects.all().filter(title=chosen_news.title).update(author = news_author)
-                print(chosen_news)
+        news = News.objects.all().filter(translated=False, is_approved=False)
+        if len(news) != 0:
+            chosen_news = random.choice(news)                
+            translate = translate_text([chosen_news.title, chosen_news.description])
+            chosen_news.title = translate['key_1']
+            chosen_news.description = translate['key_2']
+            chosen_news.content = translate_content(chosen_news.content)
+            chosen_news.translated = True
+            chosen_news.is_approved = True
+            chosen_news.save()
+            news_category = Categories.objects.get(title="news").id
+            chosen_news.categories.add(news_category)
+            news_author = Author.objects.get(name="Команда Simple IT News")
+            News.objects.all().filter(title=chosen_news.title).update(author = news_author)
+            print(chosen_news)
