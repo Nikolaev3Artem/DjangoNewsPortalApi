@@ -80,20 +80,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Новини',
             },
         ),
-        migrations.CreateModel(
-            name='NewsUser',
-            fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('first_name', models.CharField(blank=True, max_length=100, null=True, verbose_name='Имя')),
-                ('surname', models.CharField(blank=True, max_length=100, null=True, verbose_name='Фамилия')),
-                ('profile_image', models.CharField(blank=True, max_length=500, null=True, verbose_name='Картинка профиля')),
-                ('email', models.CharField(max_length=100, unique=True, verbose_name='Емейл')),
-            ],
-            options={
-                'verbose_name': 'Пользователь',
-                'verbose_name_plural': 'Пользователи',
-            },
-        ),
+
         migrations.CreateModel(
             name='Tags',
             fields=[
