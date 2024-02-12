@@ -31,9 +31,14 @@ def translate_content(data):
     while i < len(data):
         querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
         response = requests.get(url, headers=headers, params=querystring)
-        translated_content += response.json()['translated_text']['uk']
-        i += 1000
-        requests_counter += 1
+        if requests.status_codes == 200:
+            translated_content += response.json()['translated_text']['uk']
+            i += 1000
+            requests_counter += 1
+        elif response.status_code == 403:
+            API_KEY.update(active = False)
+        elif response.status_code == 429:
+            API_KEY.update(active = False, requests = 10)
     requests_counter += API_KEY[0].requests
     API_KEY.update(requests = requests_counter)
 
@@ -50,20 +55,25 @@ def translate_text(data):
             "X-RapidAPI-Host": API_HOST}
     response = requests.get(url, headers=headers, params=querystring)
     
-    requests_counter = 0
-    requests_counter += API_KEY[0].requests
-    API_KEY.update(requests = requests_counter)
-    result = {}
-    temp_word = ""
-    k = 0
-    for i in response.json()['translated_text']['uk']:
-        if i == "|":
-            k += 1
-            result[f'key_{k}'] = temp_word
-            temp_word = ""
-            continue
-        temp_word += i
-    return result
+    if response.status_code == 200:
+        requests_counter = 0
+        requests_counter += API_KEY[0].requests
+        API_KEY.update(requests = requests_counter)
+        result = {}
+        temp_word = ""
+        k = 0
+        for i in response.json()['translated_text']['uk']:
+            if i == "|":
+                k += 1
+                result[f'key_{k}'] = temp_word
+                temp_word = ""
+                continue
+            temp_word += i
+        return result
+    elif response.status_code == 403:
+        API_KEY.update(active = False)
+    elif response.status_code == 429:
+        API_KEY.update(active = False, requests = 10)
 
 class Command(BaseCommand):
     help = 'Translating parsed news'

@@ -1,9 +1,19 @@
 from django.core.management.base import BaseCommand
-from news.models import News, Author, Categories
+from news.models import News, Author, Categories, ParseKeys
 import os
 from dotenv import load_dotenv
 import requests
+import datetime
+
 load_dotenv()
+API_HOST = os.getenv('GOOGLENEWS_API_HOST')
+API_KEY = ParseKeys.objects.filter(active=True)
+
+if ParseKeys.objects.get(active=True).requests >= 10:
+    API_KEY.update(active=False)
+
+if str(datetime.datetime.now())[8:10] == 00:
+    ParseKeys.objects.all().update(requests=0)
 
 def text_to_time(text):
     word_count = 0
@@ -17,12 +27,11 @@ class Command(BaseCommand):
     help = 'Parsing news from newsdata.io'
 
     def handle(self, *args, **options):
-        GOOGLENEWS_API_KEY = os.getenv('GOOGLENEWS_API_KEY')
-        GOOGLENEWS_API_HOST = os.getenv('GOOGLENEWS_API_HOST')
         url = "https://google-news-api1.p.rapidapi.com/search?language=en&q=technology"
-        headers = {"X-RapidAPI-Key": '9e5b214306mshd2a6d5af8889f31p114a6fjsnf49014f3ad0a',
-            "X-RapidAPI-Host": GOOGLENEWS_API_HOST}
+        headers = {"X-RapidAPI-Key": API_KEY[0].key,
+            "X-RapidAPI-Host": API_HOST}
         response = requests.get(url, headers=headers)
+        API_KEY[0].requests += 1
         
         # try:
         if response.status_code == 200:
@@ -59,10 +68,9 @@ class Command(BaseCommand):
                         custom_url = custom_url[1:-1]
                     )
                     news.categories.add(news_category)
+        elif response.status_code == 403:
+            API_KEY.update(active = False)
+        elif response.status_code == 429:
+            API_KEY.update(active = False, requests = 10)
         else:
-            print(response.json())
-
-                # except:
-                #     continue
-        # except Exception as error:
-        #     print(f"KeyError: {error}")
+            print(response.status_code)

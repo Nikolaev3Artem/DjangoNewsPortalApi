@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News, Author, Tags, Categories, TranslationKeys, NewsUser
+from .models import News, Author, Tags, Categories, TranslationKeys, NewsUser, ParseKeys
 import os
 from dotenv import load_dotenv
 import requests
@@ -99,8 +99,21 @@ class NewsUserAdmin(admin.ModelAdmin):
 
 class TranslationKeysAdmin(admin.ModelAdmin):
     readonly_fields=('requests',)
-    list_display = ["key","active"]
+    list_display = ["key","active", "requests"]
+    def save_model(self, request, obj, form, change):
+        if obj.requests >= 300:
+            obj.active = False
+        super().save_model(request, obj, form, change)
 
+class ParseKeysAdmin(admin.ModelAdmin):
+    readonly_fields=('requests',)
+    list_display = ["key","active", "requests"]
+
+    def save_model(self, request, obj, form, change):
+        if obj.requests == 10:
+            obj.active = False
+        super().save_model(request, obj, form, change)
+    
 admin.site.register(News, NewsAdmin)
 # admin.site.register(Articles, ArticlesAdmin)
 
@@ -109,3 +122,4 @@ admin.site.register(Tags, TagsAdmin)
 admin.site.register(Categories, CategoriesAdmin)
 admin.site.register(TranslationKeys, TranslationKeysAdmin)
 admin.site.register(NewsUser, NewsUserAdmin)
+admin.site.register(ParseKeys, ParseKeysAdmin)

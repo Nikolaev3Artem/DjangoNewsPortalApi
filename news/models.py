@@ -150,6 +150,18 @@ class TranslationKeys(models.Model):
     def __str__(self):
         return self.key
 
+class ParseKeys(models.Model):
+    key = models.CharField(_('Ключ'), max_length=2000, null=True)
+    requests = models.IntegerField(_('Використано запросів'), default=0)
+    active = models.BooleanField(_('Ключ який використовується зараз'), default=False)
+
+    class Meta:
+        verbose_name = "Ключ для парсингу"
+        verbose_name_plural = "Ключі для парсингу"
+
+    def __str__(self):
+        return self.key
+
 
 class SavedNews(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE, blank=True, unique=True)
