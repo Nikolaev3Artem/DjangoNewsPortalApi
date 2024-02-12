@@ -32,6 +32,7 @@ class Command(BaseCommand):
             "X-RapidAPI-Host": API_HOST}
         response = requests.get(url, headers=headers)
         API_KEY[0].requests += 1
+        API_KEY.save()
         
         # try:
         if response.status_code == 200:
