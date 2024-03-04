@@ -8,11 +8,10 @@ import random
 from dotenv import load_dotenv
 import requests
 load_dotenv()
-key = TranslationKeys.objects.all()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
-API_KEY = TranslationKeys.objects.get(active=True)
 
+API_KEY = TranslationKeys.objects.get(active=True)
 if API_KEY.requests >= 300:
     API_KEY.active=False
 
@@ -21,7 +20,7 @@ if str(datetime.datetime.now())[8:10] == 00:
     
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": API_KEY.key,
+    headers = {"X-RapidAPI-Key": str(API_KEY.key),
             "X-RapidAPI-Host": API_HOST}
     i = 0
     requests_counter = 0
@@ -51,10 +50,10 @@ def translate_text(data):
             "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
     else:
         querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": API_KEY.key,
+    headers = {"X-RapidAPI-Key": str(API_KEY.key),
             "X-RapidAPI-Host": API_HOST}
     response = requests.get(url, headers=headers, params=querystring)
-    
+
     if response.status_code == 200:
         requests_counter = 0
         requests_counter += API_KEY.requests
