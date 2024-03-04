@@ -14,7 +14,7 @@ load_dotenv()
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 API_KEY = TranslationKeys.objects.filter(active=True)
 
-if TranslationKeys.objects.get(active=True).requests >= 300:
+if API_KEY.requests >= 300:
     API_KEY.update(active=False)
 
 if str(datetime.datetime.now())[8:10] == 00:
@@ -38,7 +38,7 @@ def translate_content(data):
         elif response.status_code == 403:
             API_KEY.update(active = False)
         elif response.status_code == 429:
-            API_KEY.update(active = False, requests = 10)
+            API_KEY.update(active = False, requests = 300)
     requests_counter += API_KEY[0].requests
     API_KEY.update(requests = requests_counter)
 
