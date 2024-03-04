@@ -26,22 +26,41 @@ def translate_content(data):
     requests_counter = 0
     translated_content = ""
     
-    while i < len(data):
+    if len(data) > 1000:
+        while i < len(data):
+            print(i)
+            querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
+            response = requests.get(url, headers=headers, params=querystring)
+            if requests.status_codes == 200:
+                translated_content += response.json()['translated_text']['uk']
+                i += 1000
+                requests_counter += 1
+            elif response.status_code == 403:
+                API_KEY.active = False
+                break
+            elif response.status_code == 429:
+                API_KEY.active = False
+                API_KEY.requests = 300
+                break
+        requests_counter += API_KEY.requests
+        API_KEY.requests = requests_counter
+
+        return translated_content
+    else:
         querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
         response = requests.get(url, headers=headers, params=querystring)
         if requests.status_codes == 200:
             translated_content += response.json()['translated_text']['uk']
-            i += 1000
             requests_counter += 1
         elif response.status_code == 403:
             API_KEY.active = False
         elif response.status_code == 429:
             API_KEY.active = False
             API_KEY.requests = 300
-    requests_counter += API_KEY.requests
-    API_KEY.requests = requests_counter
+        requests_counter += API_KEY.requests
+        API_KEY.requests = requests_counter
 
-    return translated_content
+        return translated_content
  
 def translate_text(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
@@ -53,7 +72,7 @@ def translate_text(data):
     headers = {"X-RapidAPI-Key": str(API_KEY.key),
             "X-RapidAPI-Host": API_HOST}
     response = requests.get(url, headers=headers, params=querystring)
-
+    # print(response.json())
     if response.status_code == 200:
         requests_counter = 0
         requests_counter += API_KEY.requests
@@ -80,7 +99,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         news = News.objects.all().filter(translated=False, is_approved=False)
         if len(news) != 0:
-            chosen_news = random.choice(news)                
+            chosen_news = random.choice(news)
             translate = translate_text([chosen_news.title, chosen_news.description])
             chosen_news.title = translate['key_1']
             chosen_news.description = translate['key_2']
@@ -92,4 +111,3 @@ class Command(BaseCommand):
             chosen_news.categories.add(news_category)
             news_author = Author.objects.get(name="Команда Simple IT News")
             News.objects.all().filter(title=chosen_news.title).update(author = news_author)
-            print(chosen_news)
