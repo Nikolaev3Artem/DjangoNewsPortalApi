@@ -8,21 +8,20 @@ import random
 from dotenv import load_dotenv
 import requests
 load_dotenv()
-# key = TranslationKeys.objects.get(active=True)
-# key.requests = 302
-# key.save(['requests'])
+key = TranslationKeys.objects.all()
+
 API_HOST = os.getenv('TRANSLATE_API_HOST')
-API_KEY = TranslationKeys.objects.filter(active=True)
+API_KEY = TranslationKeys.objects.get(active=True)
 
 if API_KEY.requests >= 300:
-    API_KEY.update(active=False)
+    API_KEY.active=False
 
 if str(datetime.datetime.now())[8:10] == 00:
     TranslationKeys.objects.all().update(requests=0)
     
 def translate_content(data):
     url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": API_KEY[0].key,
+    headers = {"X-RapidAPI-Key": API_KEY.key,
             "X-RapidAPI-Host": API_HOST}
     i = 0
     requests_counter = 0
@@ -36,11 +35,12 @@ def translate_content(data):
             i += 1000
             requests_counter += 1
         elif response.status_code == 403:
-            API_KEY.update(active = False)
+            API_KEY.active = False
         elif response.status_code == 429:
-            API_KEY.update(active = False, requests = 300)
-    requests_counter += API_KEY[0].requests
-    API_KEY.update(requests = requests_counter)
+            API_KEY.active = False
+            API_KEY.requests = 300
+    requests_counter += API_KEY.requests
+    API_KEY.requests = requests_counter
 
     return translated_content
  
@@ -51,14 +51,14 @@ def translate_text(data):
             "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
     else:
         querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": API_KEY[0].key,
+    headers = {"X-RapidAPI-Key": API_KEY.key,
             "X-RapidAPI-Host": API_HOST}
     response = requests.get(url, headers=headers, params=querystring)
     
     if response.status_code == 200:
         requests_counter = 0
-        requests_counter += API_KEY[0].requests
-        API_KEY.update(requests = requests_counter)
+        requests_counter += API_KEY.requests
+        API_KEY.requests = requests_counter
         result = {}
         temp_word = ""
         k = 0
@@ -71,10 +71,10 @@ def translate_text(data):
             temp_word += i
         return result
     elif response.status_code == 403:
-        API_KEY.update(active = False)
+        API_KEY.active = False
     elif response.status_code == 429:
-        API_KEY.update(active = False, requests = 10)
-
+        API_KEY.active = False
+        API_KEY.requests = 10
 class Command(BaseCommand):
     help = 'Translating parsed news'
     
