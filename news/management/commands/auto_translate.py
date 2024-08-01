@@ -19,20 +19,23 @@ if str(datetime.datetime.now())[8:10] == 00:
     TranslationKeys.objects.all().update(requests=0)
     
 def translate_content(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": str(API_KEY.key),
-            "X-RapidAPI-Host": API_HOST}
+    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
+    headers = {
+        "X-RapidAPI-Key": str(API_KEY.key),
+        "X-RapidAPI-Host": API_HOST,
+        "Content-Type": "application/json"
+        }
     i = 0
     requests_counter = 0
     translated_content = ""
     
     if len(data) > 1000:
+        i=0
         while i < len(data):
-            print(i)
-            querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
-            response = requests.get(url, headers=headers, params=querystring)
-            if requests.status_codes == 200:
-                translated_content += response.json()['translated_text']['uk']
+            payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
+            response = requests.post(url, headers=headers, json=payload)
+            if response.status_code == 200:
+                translated_content += response.json()['data']['translations']['translatedText']
                 i += 1000
                 requests_counter += 1
             elif response.status_code == 403:
@@ -47,10 +50,10 @@ def translate_content(data):
 
         return translated_content
     else:
-        querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
-        response = requests.get(url, headers=headers, params=querystring)
+        payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
+        response = requests.post(url, headers=headers, json=payload)
         if requests.status_codes == 200:
-            translated_content += response.json()['translated_text']['uk']
+            translated_content += response.json()['data']['translations']['translatedText']
             requests_counter += 1
         elif response.status_code == 403:
             API_KEY.active = False
@@ -63,15 +66,17 @@ def translate_content(data):
         return translated_content
  
 def translate_text(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
+    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
     if len(data) == 2:  
-        querystring = {
-            "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
+        payload = {"q": f"{data[0]} | {data[1]} |", "source": "en", "target": "uk"}
     else:
-        querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": str(API_KEY.key),
-            "X-RapidAPI-Host": API_HOST}
-    response = requests.get(url, headers=headers, params=querystring)
+        payload = {"q": f"{data[0]} |", "source": "en", "target": "uk"}
+    headers = {
+        "X-RapidAPI-Key": str(API_KEY.key),
+        "X-RapidAPI-Host": API_HOST,
+        "Content-Type": "application/json"
+        }
+    response = requests.post(url, headers=headers, json=payload)
     # print(response.json())
     if response.status_code == 200:
         requests_counter = 0
@@ -80,7 +85,7 @@ def translate_text(data):
         result = {}
         temp_word = ""
         k = 0
-        for i in response.json()['translated_text']['uk']:
+        for i in response.json()['data']['translations']['translatedText']:
             if i == "|":
                 k += 1
                 result[f'key_{k}'] = temp_word
@@ -93,11 +98,12 @@ def translate_text(data):
     elif response.status_code == 429:
         API_KEY.active = False
         API_KEY.requests = 10
+
 class Command(BaseCommand):
     help = 'Translating parsed news'
     
     def handle(self, *args, **options):
-        news = News.objects.all().filter(translated=False, is_approved=False)
+        news = News.objects.all().filter(translated=False, is_approved=False, description__isnull=False)
         if len(news) != 0:
             chosen_news = random.choice(news)
             translate = translate_text([chosen_news.title, chosen_news.description])

@@ -9,17 +9,20 @@ load_dotenv()
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 api_key = TranslationKeys.objects.all().filter(active=True)
 def translate_content(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": api_key[0].key,
-            "X-RapidAPI-Host": API_HOST}
+    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
+    headers = {
+        "X-RapidAPI-Key": api_key[0].key,
+        "X-RapidAPI-Host": API_HOST,
+        "Content-Type": "application/json"
+        }
     i = 0
     requests_counter = 0
     translated_content = ""
     
     while i < len(data):
-        querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
-        response = requests.get(url, headers=headers, params=querystring)
-        translated_content += response.json()['translated_text']['uk']
+        payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
+        response = requests.post(url, headers=headers, json=payload)
+        translated_content += response.json()['data']['translations']['translatedText']
         i += 1000
         requests_counter += 1
     requests_counter += api_key[0].requests
@@ -28,23 +31,24 @@ def translate_content(data):
     return translated_content
  
 def translate_text(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
+    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
     if len(data) == 2:
-        querystring = {
-            "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
+        payload = {"q": f"{data[0]} | {data[1]} |", "source": "en", "target": "uk"}
     else:
-        querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": api_key[0].key,
-            "X-RapidAPI-Host": API_HOST}
-    response = requests.get(url, headers=headers, params=querystring)
-    
+        payload = {"q": f"{data[0]} |", "source": "en", "target": "uk"}
+    headers = {
+        "X-RapidAPI-Key": api_key[0].key,
+        "X-RapidAPI-Host": API_HOST,
+        "Content-Type": "application/json"
+        }
+    response = requests.post(url, headers=headers, json=payload)
     requests_counter = 0
     requests_counter += api_key[0].requests
     api_key.update(requests = requests_counter)
     result = {}
     temp_word = ""
     k = 0
-    for i in response.json()['translated_text']['uk']:
+    for i in response.json()['data']['translations']['translatedText']:
         if i == "|":
             k += 1
             result[f'key_{k}'] = temp_word
