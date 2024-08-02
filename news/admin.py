@@ -1,61 +1,7 @@
 from django.contrib import admin
 from .models import News, Author, Tags, Categories, TranslationKeys, NewsUser, ParseKeys
-import os
-from dotenv import load_dotenv
-import requests
 import datetime
-
-load_dotenv()
-API_HOST = os.getenv('TRANSLATE_API_HOST')
-api_key = TranslationKeys.objects.all().filter(active=True)
-def translate_content(data):
-    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-    headers = {
-        "X-RapidAPI-Key": api_key[0].key,
-        "X-RapidAPI-Host": API_HOST,
-        "Content-Type": "application/json"
-        }
-    i = 0
-    requests_counter = 0
-    translated_content = ""
-    
-    while i < len(data):
-        payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
-        response = requests.post(url, headers=headers, json=payload)
-        translated_content += response.json()['data']['translations']['translatedText']
-        i += 1000
-        requests_counter += 1
-    requests_counter += api_key[0].requests
-    api_key.update(requests = requests_counter)
-
-    return translated_content
- 
-def translate_text(data):
-    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
-    if len(data) == 2:
-        payload = {"q": f"{data[0]} | {data[1]} |", "source": "en", "target": "uk"}
-    else:
-        payload = {"q": f"{data[0]} |", "source": "en", "target": "uk"}
-    headers = {
-        "X-RapidAPI-Key": api_key[0].key,
-        "X-RapidAPI-Host": API_HOST,
-        "Content-Type": "application/json"
-        }
-    response = requests.post(url, headers=headers, json=payload)
-    requests_counter = 0
-    requests_counter += api_key[0].requests
-    api_key.update(requests = requests_counter)
-    result = {}
-    temp_word = ""
-    k = 0
-    for i in response.json()['data']['translations']['translatedText']:
-        if i == "|":
-            k += 1
-            result[f'key_{k}'] = temp_word
-            temp_word = ""
-            continue
-        temp_word += i
-    return result
+from news.management.commands.auto_translate import translate_text, translate_content
 
 
 class NewsAdmin(admin.ModelAdmin):
