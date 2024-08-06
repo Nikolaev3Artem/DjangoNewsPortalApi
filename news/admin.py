@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import News, Author, Tags, Categories, TranslationKeys, NewsUser, ParseKeys
 import datetime
-from news.management.commands.auto_translate import translate_text, translate_content
+from news.management.commands.auto_translate import translate_content
 
 
 class NewsAdmin(admin.ModelAdmin):
@@ -12,11 +12,10 @@ class NewsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if obj.is_approved:
             if not obj.translated:
-                obj.translated = True
-                translate = translate_text([obj.title, obj.description])
-                obj.title = translate['key_1']
-                obj.description = translate['key_2']
+                obj.title = translate_content(obj.title)
+                obj.description = translate_content(obj.description)
                 obj.content = translate_content(obj.content)
+                obj.translated = True
 
         if obj.custom_url:
             temp_url = ''
@@ -49,9 +48,9 @@ class NewsUserAdmin(admin.ModelAdmin):
 
 class TranslationKeysAdmin(admin.ModelAdmin):
     readonly_fields=('requests',)
-    list_display = ["key","active", "requests"]
+    list_display = ["key","active", "requests", "characters_translate"]
     def save_model(self, request, obj, form, change):
-        if obj.requests >= 300:
+        if obj.requests >= 1000 or obj.characters_translate >= 300000:
             obj.active = False
         super().save_model(request, obj, form, change)
 
