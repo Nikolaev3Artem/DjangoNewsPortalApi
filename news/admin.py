@@ -47,7 +47,7 @@ class NewsUserAdmin(admin.ModelAdmin):
 
 
 class TranslationKeysAdmin(admin.ModelAdmin):
-    readonly_fields=('requests',)
+    readonly_fields=('requests', 'characters_translate')
     list_display = ["key","active", "requests", "characters_translate"]
     def save_model(self, request, obj, form, change):
         if obj.requests >= 1000 or obj.characters_translate >= 300000:
