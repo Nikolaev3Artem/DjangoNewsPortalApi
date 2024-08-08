@@ -12,13 +12,22 @@ load_dotenv()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 
-API_KEY = TranslationKeys.objects.filter(active=True).first()
-if str(datetime.datetime.now())[8:10] == '01':
-    TranslationKeys.objects.all().update(requests=0)
+try:
+    API_KEY = TranslationKeys.objects.filter(active=True).first()
+    if API_KEY is None:
+        raise ValueError("Активных ключей нету")
+except ValueError as e:
+    print(e)
+    try:
+        API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
+        if API_KEY is None:
+            raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
+    except ValueError as e:
+        raise RuntimeError("Не удалось найти подходящий ключ")
 
 
 def translate_content(data):
-    if check_characters_translate_limit(len(data)):
+    if check_characters_translate_limit(len(data), API_KEY.characters_translate):
         change_api_key_for_translate()
     url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
     headers = {
@@ -69,10 +78,8 @@ def translate_content(data):
         return translated_content
 
 
-def check_characters_translate_limit(text_length):
-    global API_KEY
-
-    if API_KEY.characters_translate + text_length >= 300000:
+def check_characters_translate_limit(text_length: int, key_translate_characters:int):
+    if key_translate_characters + text_length >= 300000:
         return True
     else:
         return False
@@ -85,9 +92,18 @@ def change_api_key_for_translate():
         API_KEY.characters_translate = 300000
         API_KEY.save()
 
-        API_KEY = TranslationKeys.objects.filter(active=True).first()
-        if not API_KEY:
-            raise Exception("Нет доступных ключей для перевода")
+        try:
+            API_KEY = TranslationKeys.objects.filter(active=True).first()
+            if API_KEY is None:
+                raise ValueError("Активных ключей нету")
+        except ValueError as e:
+            print(e)
+            try:
+                API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
+                if API_KEY is None:
+                    raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
+            except ValueError as e:
+                raise RuntimeError("Не удалось найти подходящий ключ")
 
 
 class Command(BaseCommand):
@@ -105,5 +121,5 @@ class Command(BaseCommand):
             chosen_news.save()
             news_category = Categories.objects.get(title="news").id
             chosen_news.categories.add(news_category)
-            news_author = Author.objects.get(name="Команда Simple IT News")
+            news_author, _ = Author.objects.get_or_create(name="Команда Simple IT News")
             News.objects.filter(title=chosen_news.title).update(author = news_author)
