@@ -3,7 +3,6 @@ from django.db import transaction
 import requests
 import os
 from news.models import News, TranslationKeys, Categories, Author
-import datetime
 import random
 
 from dotenv import load_dotenv
@@ -12,19 +11,26 @@ load_dotenv()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 
-try:
-    API_KEY = TranslationKeys.objects.filter(active=True).first()
-    if API_KEY is None:
-        raise ValueError("Активных ключей нету")
-except ValueError as e:
-    print(e)
-    try:
-        API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
-        if API_KEY is None:
-            raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
-    except ValueError as e:
-        raise RuntimeError("Не удалось найти подходящий ключ")
 
+def get_active_translation_key():
+    global API_KEY
+    try:
+        API_KEY = TranslationKeys.objects.filter(active=True).first()
+        if API_KEY is None:
+            raise ValueError("Активных ключей нету")
+        return API_KEY
+    except ValueError as e:
+        print(e)
+        try:
+            API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
+            if API_KEY is None:
+                raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
+            return API_KEY
+        except ValueError as e:
+            raise RuntimeError("Не удалось найти подходящий ключ")
+
+
+API_KEY = get_active_translation_key()
 
 def translate_content(data):
     if check_characters_translate_limit(len(data), API_KEY.characters_translate):
@@ -87,23 +93,10 @@ def check_characters_translate_limit(text_length: int, key_translate_characters:
 
 def change_api_key_for_translate():
     global API_KEY
-    with transaction.atomic():
-        API_KEY.active = False
-        API_KEY.characters_translate = 300000
-        API_KEY.save()
+    API_KEY.active = False
+    API_KEY.save()
 
-        try:
-            API_KEY = TranslationKeys.objects.filter(active=True).first()
-            if API_KEY is None:
-                raise ValueError("Активных ключей нету")
-        except ValueError as e:
-            print(e)
-            try:
-                API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
-                if API_KEY is None:
-                    raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
-            except ValueError as e:
-                raise RuntimeError("Не удалось найти подходящий ключ")
+    get_active_translation_key()
 
 
 class Command(BaseCommand):
@@ -118,8 +111,9 @@ class Command(BaseCommand):
             chosen_news.content = translate_content(chosen_news.content)
             chosen_news.translated = True
             chosen_news.is_approved = True
-            chosen_news.save()
-            news_category = Categories.objects.get(title="news").id
-            chosen_news.categories.add(news_category)
-            news_author, _ = Author.objects.get_or_create(name="Команда Simple IT News")
-            News.objects.filter(title=chosen_news.title).update(author = news_author)
+            with transaction.atomic():
+                chosen_news.save()
+                news_category = Categories.objects.get(title="news").id
+                chosen_news.categories.add(news_category)
+                news_author, _ = Author.objects.get_or_create(name="Команда Simple IT News")
+                News.objects.filter(title=chosen_news.title).update(author = news_author)
