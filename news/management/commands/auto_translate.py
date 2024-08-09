@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
+from django.db import transaction
 import requests
 import os
 from news.models import News, TranslationKeys, Categories, Author
-import datetime
 import random
 
 from dotenv import load_dotenv
@@ -11,28 +11,47 @@ load_dotenv()
 
 API_HOST = os.getenv('TRANSLATE_API_HOST')
 
-API_KEY = TranslationKeys.objects.get(active=True)
-if API_KEY.requests >= 300:
-    API_KEY.active=False
 
-if str(datetime.datetime.now())[8:10] == 00:
-    TranslationKeys.objects.all().update(requests=0)
-    
+def get_active_translation_key():
+    global API_KEY
+    try:
+        API_KEY = TranslationKeys.objects.filter(active=True).first()
+        if API_KEY is None:
+            raise ValueError("Активных ключей нету")
+        return API_KEY
+    except ValueError as e:
+        print(e)
+        try:
+            API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
+            if API_KEY is None:
+                raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
+            return API_KEY
+        except ValueError as e:
+            raise RuntimeError("Не удалось найти подходящий ключ")
+
+
+API_KEY = get_active_translation_key()
+
 def translate_content(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    headers = {"X-RapidAPI-Key": str(API_KEY.key),
-            "X-RapidAPI-Host": API_HOST}
+    if check_characters_translate_limit(len(data), API_KEY.characters_translate):
+        change_api_key_for_translate()
+    url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
+    headers = {
+        "X-RapidAPI-Key": str(API_KEY.key),
+        "X-RapidAPI-Host": API_HOST,
+        "Content-Type": "application/json"
+    }
     i = 0
     requests_counter = 0
     translated_content = ""
-    
     if len(data) > 1000:
         while i < len(data):
-            print(i)
-            querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
-            response = requests.get(url, headers=headers, params=querystring)
-            if requests.status_codes == 200:
-                translated_content += response.json()['translated_text']['uk']
+            payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
+            response = requests.post(url, headers=headers, json=payload)
+            if response.status_code == 200:
+                words_count = len(data[i:i+1000])
+                API_KEY.characters_translate += words_count
+                translated_content += response.json()['data']['translations']['translatedText']
                 i += 1000
                 requests_counter += 1
             elif response.status_code == 403:
@@ -40,74 +59,61 @@ def translate_content(data):
                 break
             elif response.status_code == 429:
                 API_KEY.active = False
-                API_KEY.requests = 300
+                API_KEY.characters_translate = 300000
                 break
         requests_counter += API_KEY.requests
         API_KEY.requests = requests_counter
-
+        API_KEY.save()
         return translated_content
     else:
-        querystring = {"text": f"{data[i:i+1000]}", "to": "uk", "from": "en"}
-        response = requests.get(url, headers=headers, params=querystring)
-        if requests.status_codes == 200:
-            translated_content += response.json()['translated_text']['uk']
+        payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code == 200:
+            words_count = len(data[i:i+1000])
+            API_KEY.characters_translate += words_count
+            translated_content += response.json()['data']['translations']['translatedText']
             requests_counter += 1
         elif response.status_code == 403:
             API_KEY.active = False
         elif response.status_code == 429:
             API_KEY.active = False
-            API_KEY.requests = 300
+            API_KEY.characters_translate = 300000
         requests_counter += API_KEY.requests
         API_KEY.requests = requests_counter
-
+        API_KEY.save()
         return translated_content
- 
-def translate_text(data):
-    url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-    if len(data) == 2:  
-        querystring = {
-            "text": f"{data[0]} | {data[1]} |", "to": "uk", "from": "en"}
+
+
+def check_characters_translate_limit(text_length: int, key_translate_characters:int):
+    if key_translate_characters + text_length >= 300000:
+        return True
     else:
-        querystring = {"text": f"{data[0]} |", "to": "uk", "from": "en"}
-    headers = {"X-RapidAPI-Key": str(API_KEY.key),
-            "X-RapidAPI-Host": API_HOST}
-    response = requests.get(url, headers=headers, params=querystring)
-    # print(response.json())
-    if response.status_code == 200:
-        requests_counter = 0
-        requests_counter += API_KEY.requests
-        API_KEY.requests = requests_counter
-        result = {}
-        temp_word = ""
-        k = 0
-        for i in response.json()['translated_text']['uk']:
-            if i == "|":
-                k += 1
-                result[f'key_{k}'] = temp_word
-                temp_word = ""
-                continue
-            temp_word += i
-        return result
-    elif response.status_code == 403:
-        API_KEY.active = False
-    elif response.status_code == 429:
-        API_KEY.active = False
-        API_KEY.requests = 10
+        return False
+
+
+def change_api_key_for_translate():
+    global API_KEY
+    API_KEY.active = False
+    API_KEY.save()
+
+    get_active_translation_key()
+
+
 class Command(BaseCommand):
     help = 'Translating parsed news'
     
     def handle(self, *args, **options):
-        news = News.objects.all().filter(translated=False, is_approved=False)
+        news = News.objects.all().filter(translated=False, is_approved=False, description__isnull=False)
         if len(news) != 0:
             chosen_news = random.choice(news)
-            translate = translate_text([chosen_news.title, chosen_news.description])
-            chosen_news.title = translate['key_1']
-            chosen_news.description = translate['key_2']
+            chosen_news.title = translate_content(chosen_news.title)
+            chosen_news.description = translate_content(chosen_news.description)
             chosen_news.content = translate_content(chosen_news.content)
             chosen_news.translated = True
             chosen_news.is_approved = True
-            chosen_news.save()
-            news_category = Categories.objects.get(title="news").id
-            chosen_news.categories.add(news_category)
-            news_author = Author.objects.get(name="Команда Simple IT News")
-            News.objects.all().filter(title=chosen_news.title).update(author = news_author)
+            with transaction.atomic():
+                chosen_news.save()
+                news_category = Categories.objects.get(title="news").id
+                chosen_news.categories.add(news_category)
+                news_author, _ = Author.objects.get_or_create(name="Команда Simple IT News")
+                News.objects.filter(title=chosen_news.title).update(author = news_author)
