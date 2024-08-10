@@ -31,10 +31,11 @@ def get_active_translation_key():
 
 
 API_KEY = get_active_translation_key()
+print(API_KEY)
 
 def translate_content(data):
     if check_characters_translate_limit(len(data), API_KEY.characters_translate):
-        change_api_key_for_translate()
+        change_api_key_for_translate((len(data)))
     url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
     headers = {
         "X-RapidAPI-Key": str(API_KEY.key),
@@ -91,12 +92,27 @@ def check_characters_translate_limit(text_length: int, key_translate_characters:
         return False
 
 
-def change_api_key_for_translate():
+def change_api_key_for_translate(translation_length:int):
     global API_KEY
     API_KEY.active = False
     API_KEY.save()
-
-    get_active_translation_key()
+    
+    required_capacity = 300000 - translation_length
+    
+    try:
+        API_KEY = TranslationKeys.objects.filter(active=True, characters_translate__lt=required_capacity).first()
+        if API_KEY is None:
+            raise ValueError("Активных ключей нету")
+        return API_KEY
+    except ValueError as e:
+        print(e)
+        try:
+            API_KEY = TranslationKeys.objects.filter(characters_translate__lt=required_capacity).first()
+            if API_KEY is None:
+                raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
+            return API_KEY
+        except ValueError as e:
+            raise RuntimeError("Не удалось найти подходящий ключ")
 
 
 class Command(BaseCommand):
