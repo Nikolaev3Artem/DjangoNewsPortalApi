@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 from dotenv import load_dotenv
 import os
 load_dotenv()
@@ -14,32 +15,41 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
+DEBUG = True
+
+# TESTING
+TESTING = any(test in sys.argv for test in ("test", "pytest"))
+TEST_RUNNER = "utils.test_runner.CustomTestRunner"
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
+
 # Application definition
-
-INSTALLED_APPS = [
-
+BASIC = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
 
-    'news',
-    'parse_news',
-    'telegram_bot',
-
+THIRD_PARTY = [
     'drf_yasg',
     'rest_framework',
     'rest_framework_swagger',
     'drf_spectacular',
     'django_filters',
-    
     "django_elasticsearch_dsl",
 ]
+
+APPS = [
+    'news',
+    'parse_news',
+    'telegram_bot',
+    'utils',
+]
+
+INSTALLED_APPS = THIRD_PARTY + BASIC + APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -203,3 +213,4 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ORIGIN_ALLOW_ALL = True  # установить False в продакшн
 # конец настройки для CORS
+
