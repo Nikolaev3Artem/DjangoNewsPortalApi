@@ -142,6 +142,7 @@ class TranslationKeys(models.Model):
     key = models.CharField(_('Ключ'), max_length=2000, null=True)
     requests = models.IntegerField(_('Використано запросів'), default=0)
     active = models.BooleanField(_('Ключ який використовується зараз'), default=False)
+    characters_translate = models.IntegerField(_('Переведених ключем символів'), default=0)
 
     class Meta:
         verbose_name = "Ключ для перекладу"

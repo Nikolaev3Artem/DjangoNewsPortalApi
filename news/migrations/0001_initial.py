@@ -114,6 +114,7 @@ class Migration(migrations.Migration):
                 ('key', models.CharField(max_length=2000, null=True, verbose_name='Ключ')),
                 ('requests', models.IntegerField(default=0, verbose_name='Використано запросів')),
                 ('active', models.BooleanField(default=False, verbose_name='Ключ який використовується зараз')),
+                ('characters_translate', models.IntegerField(default=0, verbose_name='Переведених ключем символів')),
             ],
             options={
                 'verbose_name': 'Ключ для перекладу',
