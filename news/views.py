@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.db.models import Avg
 
 from .serializers import NewsSerializer, SingleNewsSerializer, TagsSerializer, AuthorSerializer, CategoriesSerializer, \
     NewsUserSerializer, CommentSerializer, SavedNewsSerializer
@@ -21,13 +22,15 @@ from drf_yasg import openapi
 import random
 
 class NewsList(viewsets.ModelViewSet):
-    queryset = News.objects.all()
+    queryset = News.objects.all().select_related('author').prefetch_related('tags','categories', 'ratings')
     serializer_class = NewsSerializer
     http_method_names = ['get']
     lookup_field = 'custom_url'
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
+
+        queryset = queryset.annotate(rating_avg=Avg('rating__rate'))
 
         tags = self.request.query_params.get('tags', None)
         categories = self.request.query_params.get('category', None)
@@ -131,13 +134,15 @@ class NewsList(viewsets.ModelViewSet):
 
 
 class ApprovedNewsList(viewsets.ModelViewSet):
-    queryset = News.objects.all().filter(is_approved=True)
+    queryset = News.objects.select_related('author').prefetch_related('tags','categories', 'ratings').filter(is_approved=True)
     serializer_class = NewsSerializer
     lookup_field = 'custom_url'
     http_method_names = ['get', 'post', 'delete']
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
+        
+        queryset = queryset.annotate(rating_avg=Avg('rating__rate'))
 
         tags = self.request.query_params.get('tags', None)
         categories = self.request.query_params.get('category', None)
@@ -361,9 +366,10 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class RandomApprovedNewsList(viewsets.ModelViewSet):
-    queryset = News.objects.all().filter(is_approved=True)
+    queryset = News.objects.select_related('author').prefetch_related('tags','categories', 'ratings').filter(is_approved=True)
     serializer_class = NewsSerializer
-
+    
+    queryset = queryset.annotate(rating_avg=Avg('rating__rate'))
     @swagger_auto_schema(
         responses={
             200: openapi.Response(description='Список рандомных новостей подтвержденных админом'),
@@ -393,8 +399,9 @@ class RandomApprovedNewsList(viewsets.ModelViewSet):
             Возвращает новость по айди или по custom_url.
         """
         count = self.request.query_params.get('count', None)
-        queryset = News.objects.all().filter(is_approved=True)
-
+        queryset = News.objects.select_related('author').prefetch_related('tags','categories', 'ratings').filter(is_approved=True)
+        
+        queryset = queryset.annotate(rating_avg=Avg('rating__rate'))
         if count is not None:
             try:
                 queryset = random.choices(queryset, k=int(count))
@@ -446,7 +453,7 @@ class TagsList(viewsets.ModelViewSet):
             Возвращает список новосте по заголовку.
         """
         if title is not None:
-            queryset = News.objects.all().filter(tags__title=title)
+            queryset = News.objects.select_related('author').prefetch_related('tags','categories', 'ratings').filter(tags__title=title)
             serializer = NewsSerializer(queryset, many=True)
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)

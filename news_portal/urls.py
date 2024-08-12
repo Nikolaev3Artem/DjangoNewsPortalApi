@@ -10,3 +10,7 @@ urlpatterns = [
 ]
 
 urlpatterns += doc_urls
+
+urlpatterns += [
+    path('silk/', include('silk.urls', namespace='silk'))
+]
