@@ -3,6 +3,7 @@ from django.urls import path, include
 
 from .yasg import urlpatterns as doc_urls
 from news.routers import router as news_router
+from news_portal.settings import DEBUG
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,6 +12,7 @@ urlpatterns = [
 
 urlpatterns += doc_urls
 
-urlpatterns += [
-    path('silk/', include('silk.urls', namespace='silk'))
-]
+if DEBUG:
+    urlpatterns += [
+        path('silk/', include('silk.urls', namespace='silk'))
+    ]
