@@ -42,6 +42,7 @@ THIRD_PARTY = [
     "drf_spectacular",
     "django_filters",
     "django_elasticsearch_dsl",
+    "silk",
 ]
 
 APPS = [
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "silk.middleware.SilkyMiddleware",
 ]
 
 ROOT_URLCONF = "news_portal.urls"
@@ -105,13 +107,11 @@ WSGI_APPLICATION = "news_portal.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv(
-            "DATABASE_ENGINE", "django.db.backends.postgresql_psycopg2"
-        ),
+        "ENGINE": os.getenv("DATABASE_ENGINE", "django.db.backends.postgresql_psycopg2"),
         "NAME": os.getenv("DATABASE_NAME"),
         "USER": os.getenv("DATABASE_USER", "postgres"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
-        "HOST": os.getenv("DATABASE_HOST", "127.0.0.1"),
+        "HOST": os.getenv("DATABASE_HOST", "postgres"),
         "PORT": os.getenv("DATABASE_PORT", "5432"),
     }
 }

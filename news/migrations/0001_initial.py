@@ -35,27 +35,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "route",
-                    models.URLField(
-                        blank=True, max_length=400, verbose_name="Посилання"
-                    ),
+                    models.URLField(blank=True, max_length=400, verbose_name="Посилання"),
                 ),
                 (
                     "facebook",
-                    models.CharField(
-                        blank=True, max_length=50, null=True, verbose_name="Фейсбук"
-                    ),
+                    models.CharField(blank=True, max_length=50, null=True, verbose_name="Фейсбук"),
                 ),
                 (
                     "twitter",
-                    models.CharField(
-                        blank=True, max_length=50, null=True, verbose_name="Твіттер"
-                    ),
+                    models.CharField(blank=True, max_length=50, null=True, verbose_name="Твіттер"),
                 ),
                 (
                     "telegram",
-                    models.CharField(
-                        blank=True, max_length=50, null=True, verbose_name="Телеграм"
-                    ),
+                    models.CharField(blank=True, max_length=50, null=True, verbose_name="Телеграм"),
                 ),
                 ("rating", models.IntegerField(default=0, verbose_name="Рейтинг")),
                 ("news_posted", models.IntegerField(default=0)),
@@ -114,9 +106,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.TextField(
-                        blank=True, max_length=800, null=True, verbose_name="Опис"
-                    ),
+                    models.TextField(blank=True, max_length=800, null=True, verbose_name="Опис"),
                 ),
                 (
                     "pub_date",
@@ -138,15 +128,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "country",
-                    models.CharField(
-                        blank=True, max_length=50, null=True, verbose_name="Країна"
-                    ),
+                    models.CharField(blank=True, max_length=50, null=True, verbose_name="Країна"),
                 ),
                 (
                     "content",
-                    models.TextField(
-                        max_length=7000, null=True, verbose_name="Контент"
-                    ),
+                    models.TextField(max_length=7000, null=True, verbose_name="Контент"),
                 ),
                 (
                     "custom_url",
@@ -160,9 +146,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "time_to_read",
-                    models.IntegerField(
-                        blank=True, null=True, verbose_name="Час прочитання"
-                    ),
+                    models.IntegerField(blank=True, null=True, verbose_name="Час прочитання"),
                 ),
                 (
                     "img_alt",
@@ -208,15 +192,11 @@ class Migration(migrations.Migration):
                 ("id", models.AutoField(primary_key=True, serialize=False)),
                 (
                     "first_name",
-                    models.CharField(
-                        blank=True, max_length=100, null=True, verbose_name="Имя"
-                    ),
+                    models.CharField(blank=True, max_length=100, null=True, verbose_name="Имя"),
                 ),
                 (
                     "surname",
-                    models.CharField(
-                        blank=True, max_length=100, null=True, verbose_name="Фамилия"
-                    ),
+                    models.CharField(blank=True, max_length=100, null=True, verbose_name="Фамилия"),
                 ),
                 (
                     "profile_image",
@@ -229,9 +209,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "email",
-                    models.EmailField(
-                        max_length=100, unique=True, verbose_name="Емейл"
-                    ),
+                    models.EmailField(max_length=100, unique=True, verbose_name="Емейл"),
                 ),
                 ("google_id", models.CharField(default="1")),
             ],
@@ -273,15 +251,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "active",
-                    models.BooleanField(
-                        default=False, verbose_name="Ключ який використовується зараз"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Ключ який використовується зараз"),
                 ),
                 (
                     "characters_translate",
-                    models.IntegerField(
-                        default=0, verbose_name="Переведених ключем символів"
-                    ),
+                    models.IntegerField(default=0, verbose_name="Переведених ключем символів"),
                 ),
             ],
             options={
@@ -343,15 +317,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "news",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="news.news"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="news.news"),
                 ),
                 (
                     "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="news.newsuser"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="news.newsuser"),
                 ),
             ],
             options={

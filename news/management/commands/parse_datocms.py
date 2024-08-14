@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 
 from news.models import Author
 
-from . import *
-
 load_dotenv()
 
 
@@ -31,6 +29,7 @@ def parse_authors():
     request = requests.post(url=url, json=json_data, headers=headers)
     responce = request
     authors = Author.objects.all()
+
     if responce.status_code == 200:
         for author in responce.json()["data"]["allAuthors"]:
             create_new_author = True
@@ -58,7 +57,8 @@ def parse_authors():
                 )
 
 
-def parse_tags(): ...
+def parse_tags():
+    pass
 
 
 def parse_all():

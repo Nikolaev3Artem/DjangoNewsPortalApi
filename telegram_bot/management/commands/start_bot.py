@@ -34,9 +34,7 @@ class Command(BaseCommand):
             await bot.close()
 
         async def forever_check():
-            response = requests.get(
-                f"{API_HOST}:{API_PORT}/api/ApprovedNews/social_posts"
-            )
+            response = requests.get(f"{API_HOST}:{API_PORT}/api/ApprovedNews/social_posts")
             if response.status_code == 200:
                 data = response.json()
                 for news in data:

@@ -32,9 +32,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "active",
-                    models.BooleanField(
-                        default=False, verbose_name="Ключ який використовується зараз"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Ключ який використовується зараз"),
                 ),
             ],
             options={

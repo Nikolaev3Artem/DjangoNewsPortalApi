@@ -1,14 +1,7 @@
 from rest_framework import serializers
 
-from .models import (  # Rating,
-    Author,
-    Categories,
-    Comment,
-    News,
-    NewsUser,
-    SavedNews,
-    Tags,
-)
+from .models import NewsUser  # Rating,
+from .models import Author, Categories, Comment, News, SavedNews, Tags
 
 
 class AuthorSerializer(serializers.ModelSerializer):

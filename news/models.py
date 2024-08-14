@@ -76,9 +76,7 @@ class NewsUser(models.Model):
     id = models.AutoField(primary_key=True)
     first_name = models.CharField(_("Имя"), max_length=100, null=True, blank=True)
     surname = models.CharField(_("Фамилия"), max_length=100, null=True, blank=True)
-    profile_image = models.CharField(
-        _("Картинка профиля"), max_length=500, null=True, blank=True
-    )
+    profile_image = models.CharField(_("Картинка профиля"), max_length=500, null=True, blank=True)
     email = models.EmailField(_("Емейл"), max_length=100, null=False, unique=True)
     google_id = models.CharField(default="1")
 
@@ -93,23 +91,13 @@ class NewsUser(models.Model):
 class News(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(_("Назва"), max_length=300, null=True)
-    news_creator = models.CharField(
-        _("Власник(и) новини"), max_length=300, blank=True, null=True
-    )
+    news_creator = models.CharField(_("Власник(и) новини"), max_length=300, blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, blank=True)
-    link = models.CharField(
-        _("Посилання"), max_length=200, blank=True, null=True, unique=True
-    )
-    image_url = models.CharField(
-        _("Посилання на картинку"), max_length=500, null=True, blank=True
-    )
+    link = models.CharField(_("Посилання"), max_length=200, blank=True, null=True, unique=True)
+    image_url = models.CharField(_("Посилання на картинку"), max_length=500, null=True, blank=True)
     description = models.TextField(_("Опис"), max_length=800, null=True, blank=True)
-    pub_date = models.CharField(
-        _("Дата публікації"), max_length=100, null=True, blank=True
-    )
-    update_date = models.CharField(
-        _("Дата оновлення"), max_length=100, null=True, blank=True
-    )
+    pub_date = models.CharField(_("Дата публікації"), max_length=100, null=True, blank=True)
+    update_date = models.CharField(_("Дата оновлення"), max_length=100, null=True, blank=True)
     country = models.CharField(_("Країна"), max_length=50, null=True, blank=True)
     content = models.TextField(_("Контент"), max_length=7000, null=True)
     custom_url = models.CharField(
@@ -118,9 +106,7 @@ class News(models.Model):
     tags = models.ManyToManyField(Tags, blank=True)
     categories = models.ManyToManyField(Categories, blank=True)
     time_to_read = models.IntegerField(_("Час прочитання"), blank=True, null=True)
-    ratings = models.ManyToManyField(
-        "NewsUser", through="Rating", related_name="rated_news"
-    )
+    ratings = models.ManyToManyField("NewsUser", through="Rating", related_name="rated_news")
 
     img_alt = models.CharField(
         _("Альтернативна назва картинки"),
@@ -129,9 +115,7 @@ class News(models.Model):
         null=True,
         blank=True,
     )
-    is_approved = models.BooleanField(
-        _("Підтвердження валідності новини для її виставлення"), default=False
-    )
+    is_approved = models.BooleanField(_("Підтвердження валідності новини для її виставлення"), default=False)
     translated = models.BooleanField(default=False, editable=False)
     already_posted = models.BooleanField(default=False, editable=False)
 
@@ -151,9 +135,7 @@ class News(models.Model):
 
 
 class Rating(models.Model):
-    rate = models.FloatField(
-        validators=[MinValueValidator(0.0), MaxValueValidator(10.0)]
-    )
+    rate = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
     news = models.ForeignKey(News, on_delete=models.CASCADE)
     user = models.ForeignKey(NewsUser, on_delete=models.CASCADE)
 
@@ -165,9 +147,7 @@ class TranslationKeys(models.Model):
     key = models.CharField(_("Ключ"), max_length=2000, null=True)
     requests = models.IntegerField(_("Використано запросів"), default=0)
     active = models.BooleanField(_("Ключ який використовується зараз"), default=False)
-    characters_translate = models.IntegerField(
-        _("Переведених ключем символів"), default=0
-    )
+    characters_translate = models.IntegerField(_("Переведених ключем символів"), default=0)
 
     class Meta:
         verbose_name = "Ключ для перекладу"
@@ -200,9 +180,7 @@ class SavedNews(models.Model):
 
 class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(
-        NewsUser, related_name="comments", on_delete=models.CASCADE
-    )
+    author = models.ForeignKey(NewsUser, related_name="comments", on_delete=models.CASCADE)
     news = models.ForeignKey("News", related_name="comments", on_delete=models.CASCADE)
     body = models.TextField(blank=False)
 

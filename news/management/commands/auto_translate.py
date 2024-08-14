@@ -23,13 +23,9 @@ def get_active_translation_key():
     except ValueError as e:
         print(e)
         try:
-            API_KEY = TranslationKeys.objects.filter(
-                characters_translate__lt=300000
-            ).first()
+            API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
             if API_KEY is None:
-                raise ValueError(
-                    "Ключей, которые имеют неиспользованный лимит по символам, нету"
-                )
+                raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
             return API_KEY
         except ValueError:
             raise RuntimeError("Не удалось найти подходящий ключ")
@@ -58,9 +54,7 @@ def translate_content(data):
             if response.status_code == 200:
                 words_count = len(data[i : i + 1000])
                 API_KEY.characters_translate += words_count
-                translated_content += response.json()["data"]["translations"][
-                    "translatedText"
-                ]
+                translated_content += response.json()["data"]["translations"]["translatedText"]
                 i += 1000
                 requests_counter += 1
             elif response.status_code == 403:
@@ -80,9 +74,7 @@ def translate_content(data):
         if response.status_code == 200:
             words_count = len(data[i : i + 1000])
             API_KEY.characters_translate += words_count
-            translated_content += response.json()["data"]["translations"][
-                "translatedText"
-            ]
+            translated_content += response.json()["data"]["translations"]["translatedText"]
             requests_counter += 1
         elif response.status_code == 403:
             API_KEY.active = False
@@ -119,13 +111,9 @@ def change_api_key_for_translate(translation_length: int):
     except ValueError as e:
         print(e)
         try:
-            API_KEY = TranslationKeys.objects.filter(
-                characters_translate__lt=required_capacity
-            ).first()
+            API_KEY = TranslationKeys.objects.filter(characters_translate__lt=required_capacity).first()
             if API_KEY is None:
-                raise ValueError(
-                    "Ключей, которые имеют неиспользованный лимит по символам, нету"
-                )
+                raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
             return API_KEY
         except ValueError:
             raise RuntimeError("Не удалось найти подходящий ключ")
@@ -135,9 +123,7 @@ class Command(BaseCommand):
     help = "Translating parsed news"
 
     def handle(self, *args, **options):
-        news = News.objects.all().filter(
-            translated=False, is_approved=False, description__isnull=False
-        )
+        news = News.objects.all().filter(translated=False, is_approved=False, description__isnull=False)
         if len(news) != 0:
             chosen_news = random.choice(news)
             chosen_news.title = translate_content(chosen_news.title)
@@ -149,7 +135,5 @@ class Command(BaseCommand):
                 chosen_news.save()
                 news_category = Categories.objects.get(title="news").id
                 chosen_news.categories.add(news_category)
-                news_author, _ = Author.objects.get_or_create(
-                    name="Команда Simple IT News"
-                )
+                news_author, _ = Author.objects.get_or_create(name="Команда Simple IT News")
                 News.objects.filter(title=chosen_news.title).update(author=news_author)
