@@ -1,8 +1,6 @@
-from factory import Faker, Sequence
-
 from news.models import NewsUser
-from utils.generic import AsyncFactory
-
+from utils.setup_tests.generic import AsyncFactory
+from factory import Faker, Sequence
 
 class NewsUserFactory(AsyncFactory):
     class Meta:
