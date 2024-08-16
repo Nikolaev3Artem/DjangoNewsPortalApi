@@ -1,7 +1,7 @@
-
 from rest_framework.test import APITestCase
 
 from utils.setup_tests.news import NewsFactory
+
 
 class TestNews(APITestCase):
     @classmethod

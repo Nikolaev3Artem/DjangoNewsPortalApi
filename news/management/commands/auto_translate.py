@@ -1,15 +1,16 @@
-from django.core.management.base import BaseCommand
-from django.db import transaction
-import requests
 import os
-from news.models import News, TranslationKeys, Categories, Author
 import random
 
-from dotenv import load_dotenv
 import requests
+from django.core.management.base import BaseCommand
+from django.db import transaction
+from dotenv import load_dotenv
+
+from news.models import Author, Categories, News, TranslationKeys
+
 load_dotenv()
 
-API_HOST = os.getenv('TRANSLATE_API_HOST')
+API_HOST = os.getenv("TRANSLATE_API_HOST")
 
 
 def get_active_translation_key():
@@ -26,12 +27,13 @@ def get_active_translation_key():
             if API_KEY is None:
                 raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
             return API_KEY
-        except ValueError as e:
+        except ValueError:
             raise RuntimeError("Не удалось найти подходящий ключ")
 
 
 API_KEY = get_active_translation_key()
 print(API_KEY)
+
 
 def translate_content(data):
     if check_characters_translate_limit(len(data), API_KEY.characters_translate):
@@ -40,7 +42,7 @@ def translate_content(data):
     headers = {
         "X-RapidAPI-Key": str(API_KEY.key),
         "X-RapidAPI-Host": API_HOST,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
     i = 0
     requests_counter = 0
@@ -50,9 +52,9 @@ def translate_content(data):
             payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
             response = requests.post(url, headers=headers, json=payload)
             if response.status_code == 200:
-                words_count = len(data[i:i+1000])
+                words_count = len(data[i : i + 1000])
                 API_KEY.characters_translate += words_count
-                translated_content += response.json()['data']['translations']['translatedText']
+                translated_content += response.json()["data"]["translations"]["translatedText"]
                 i += 1000
                 requests_counter += 1
             elif response.status_code == 403:
@@ -70,9 +72,9 @@ def translate_content(data):
         payload = {"q": f"{data[i:i+1000]}", "source": "en", "target": "uk"}
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 200:
-            words_count = len(data[i:i+1000])
+            words_count = len(data[i : i + 1000])
             API_KEY.characters_translate += words_count
-            translated_content += response.json()['data']['translations']['translatedText']
+            translated_content += response.json()["data"]["translations"]["translatedText"]
             requests_counter += 1
         elif response.status_code == 403:
             API_KEY.active = False
@@ -85,22 +87,24 @@ def translate_content(data):
         return translated_content
 
 
-def check_characters_translate_limit(text_length: int, key_translate_characters:int):
+def check_characters_translate_limit(text_length: int, key_translate_characters: int):
     if key_translate_characters + text_length >= 300000:
         return True
     else:
         return False
 
 
-def change_api_key_for_translate(translation_length:int):
+def change_api_key_for_translate(translation_length: int):
     global API_KEY
     API_KEY.active = False
     API_KEY.save()
-    
+
     required_capacity = 300000 - translation_length
-    
+
     try:
-        API_KEY = TranslationKeys.objects.filter(active=True, characters_translate__lt=required_capacity).first()
+        API_KEY = TranslationKeys.objects.filter(
+            active=True, characters_translate__lt=required_capacity
+        ).first()
         if API_KEY is None:
             raise ValueError("Активных ключей нету")
         return API_KEY
@@ -111,13 +115,13 @@ def change_api_key_for_translate(translation_length:int):
             if API_KEY is None:
                 raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
             return API_KEY
-        except ValueError as e:
+        except ValueError:
             raise RuntimeError("Не удалось найти подходящий ключ")
 
 
 class Command(BaseCommand):
-    help = 'Translating parsed news'
-    
+    help = "Translating parsed news"
+
     def handle(self, *args, **options):
         news = News.objects.all().filter(translated=False, is_approved=False, description__isnull=False)
         if len(news) != 0:
@@ -132,4 +136,4 @@ class Command(BaseCommand):
                 news_category = Categories.objects.get(title="news").id
                 chosen_news.categories.add(news_category)
                 news_author, _ = Author.objects.get_or_create(name="Команда Simple IT News")
-                News.objects.filter(title=chosen_news.title).update(author = news_author)
+                News.objects.filter(title=chosen_news.title).update(author=news_author)
