@@ -19,23 +19,23 @@ def get_active_translation_key():
         API_KEY = TranslationKeys.objects.filter(active=True).first()
         if API_KEY is None:
             raise ValueError("Активных ключей нету")
-        return API_KEY
+        else:
+            return API_KEY
     except ValueError as e:
         print(e)
         try:
             API_KEY = TranslationKeys.objects.filter(characters_translate__lt=300000).first()
             if API_KEY is None:
                 raise ValueError("Ключей, которые имеют неиспользованный лимит по символам, нету")
-            return API_KEY
+            else:
+                return API_KEY
         except ValueError:
             raise RuntimeError("Не удалось найти подходящий ключ")
 
 
-API_KEY = get_active_translation_key()
-print(API_KEY)
-
-
 def translate_content(data):
+    API_KEY = get_active_translation_key()
+    print(API_KEY)
     if check_characters_translate_limit(len(data), API_KEY.characters_translate):
         change_api_key_for_translate((len(data)))
     url = "https://deep-translate1.p.rapidapi.com/language/translate/v2"
