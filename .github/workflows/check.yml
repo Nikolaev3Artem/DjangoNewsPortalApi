@@ -39,7 +39,7 @@ jobs:
     steps:
     - name: Set up .env file
       run: |
-        echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+        echo "DJANGO_SECRET_KEY"=${{ secrets.DJANGO_SECRET_KEY }} >> .env
     - uses: actions/checkout@v4
     - name: Set up Python 3.11.9
       uses: actions/setup-python@v5
