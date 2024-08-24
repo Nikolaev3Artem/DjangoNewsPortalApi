@@ -237,7 +237,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
         Возврощает новость по custom_url
         """
         if custom_url is not None:
-            queryset = News.objects.all().filter(custom_url=custom_url, is_approved=True)
+            queryset = News.objects.filter(custom_url=custom_url, is_approved=True)
             serializer = SingleNewsSerializer(queryset, many=True)
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
@@ -462,7 +462,7 @@ class TagsList(viewsets.ModelViewSet):
             queryset = (
                 News.objects.select_related("author")
                 .prefetch_related("tags", "categories", "ratings")
-                .filter(tags__title=title)
+                .filter(title__icontains=title)
             )
             serializer = NewsSerializer(queryset, many=True)
             if queryset.count() != 0:
@@ -508,7 +508,7 @@ class CategoriesList(viewsets.ModelViewSet):
         Возвращает список новостей по заголовку категорий.
         """
         if title is not None:
-            queryset = News.objects.all().filter(categories__title=title)
+            queryset = News.objects.all().filter(title__icontains=title)
             serializer = NewsSerializer(queryset, many=True)
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
@@ -630,7 +630,7 @@ class NewsUserList(viewsets.ModelViewSet):
     )
     def retrieve(self, request, pk=None):
         if pk is not None:
-            queryset = NewsUser.objects.get(google_id=pk)
+            queryset = NewsUser.objects.filter(google_id=pk).first()
             serializer = NewsUserSerializer(queryset)
             return Response(data=serializer.data, status=200)
             # else:
@@ -743,10 +743,14 @@ class CommentList(viewsets.ModelViewSet):
         except:
             return Response(status=status.HTTP_404_NOT_FOUND, data="News not found!")
         try:
+            comment = Comment.objects.get(id=comment_id)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND, data="Comment not found!")
+        try:
             user = NewsUser.objects.get(email=user_email)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND, data="User not found!")
-        if news and user:
+        if news and user and comment:
             Comment.objects.filter(id=comment_id, news__id=news__id, author__email=user_email).delete()
 
         return Response(status=status.HTTP_200_OK, data="Succesfully deleted!")
