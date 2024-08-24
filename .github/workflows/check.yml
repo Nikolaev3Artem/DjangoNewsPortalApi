@@ -25,8 +25,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+    - name: Set up .env file
+      run: |
+        echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
     services:
       postgres:
         image: postgres:latest
