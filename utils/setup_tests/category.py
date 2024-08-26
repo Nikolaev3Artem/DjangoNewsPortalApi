@@ -8,4 +8,4 @@ class CategoriesFactory(AsyncFactory):
     class Meta:
         model = Categories
 
-    title = Faker("text", max_nb_chars=50)
+    title = Faker("word")

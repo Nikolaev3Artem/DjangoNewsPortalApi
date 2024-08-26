@@ -8,4 +8,4 @@ class TagsFactory(AsyncFactory):
     class Meta:
         model = Tags
 
-    title = Faker("text", max_nb_chars=50)
+    title = Faker("word")

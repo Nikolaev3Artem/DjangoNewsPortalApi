@@ -462,7 +462,7 @@ class TagsList(viewsets.ModelViewSet):
             queryset = (
                 News.objects.select_related("author")
                 .prefetch_related("tags", "categories", "ratings")
-                .filter(title__icontains=title)
+                .filter(tags__title=title)
             )
             serializer = NewsSerializer(queryset, many=True)
             if queryset.count() != 0:
@@ -508,7 +508,7 @@ class CategoriesList(viewsets.ModelViewSet):
         Возвращает список новостей по заголовку категорий.
         """
         if title is not None:
-            queryset = News.objects.all().filter(title__icontains=title)
+            queryset = News.objects.all().filter(categories__title=title)
             serializer = NewsSerializer(queryset, many=True)
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
