@@ -1,22 +1,29 @@
 # Categories
-TEST_CATEGORIES = "test_categories"
-
+TEST_CATEGORIES = {
+    "TITLE": "test_categories",
+}
 # Tags
-TEST_TAGS = "test_tags"
-
+TEST_TAGS = {
+    "TITLE": "test_tags",
+}
 # NewsUser
-FIRST_NAME = "test_first_name"
-SURNAME = "test_surname"
-USER_EMAIL = "testemail@gmail.com"
-PROFILE_IMAGE = None
-GOOGLE_ID = "test_google_id"
+TEST_CREATE_USER = {
+    "FIRST_NAME": "test_first_name",
+    "SURNAME": "test_surname",
+    "USER_EMAIL": "testemail@gmail.com",
+    "PROFILE_IMAGE": None,
+    "GOOGLE_ID": "test_google_id",
+}
 # News
-CUSTOM_URL = "test_custom_url"
-NEWS_ID = 150504304
-
+TEST_NEWS = {
+    "CUSTOM_URL": "test_custom_url",
+}
 # Comment
-COMMENT_ID = 150504304
-COMMENT_BODY = "test comment body"
-
+TEST_COMMENT = {
+    "NEWS_ID": 1505015010,
+    "COMMENT_ID": 150504304,
+    "EMAIL_AUTHORS_COMMENT": "testemail@gmail.com",
+    "COMMENT_BODY": "test comment body",
+}
 # offset
-OFFSET = 20
+OFFSET = 10

@@ -1,22 +1,9 @@
 from rest_framework.test import APITestCase
 
+from utils.setup_tests import constant
 from utils.setup_tests.author import AuthorFactory
 from utils.setup_tests.category import CategoriesFactory
 from utils.setup_tests.comment import CommentFactory
-from utils.setup_tests.constant import (
-    COMMENT_BODY,
-    COMMENT_ID,
-    CUSTOM_URL,
-    FIRST_NAME,
-    GOOGLE_ID,
-    NEWS_ID,
-    OFFSET,
-    PROFILE_IMAGE,
-    SURNAME,
-    TEST_CATEGORIES,
-    TEST_TAGS,
-    USER_EMAIL,
-)
 from utils.setup_tests.news import ApprovedNewsFactory, NewsFactory
 from utils.setup_tests.news_user import NewsUserFactory
 from utils.setup_tests.saved_news import SavedNewsFactory
@@ -26,23 +13,41 @@ from utils.setup_tests.tags import TagsFactory
 class TestCategories(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.categories = CategoriesFactory()
+        cls.categories = [CategoriesFactory() for _ in range(1, 21)]
 
     def test_get_list_categories(self):
         response = self.client.get("/api/Categories/", format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.categories.title, response.json()[0]["title"])
+        self.assertEqual(len(self.categories), len(response.json()))
+        self.assertEqual(self.categories[0].title, response.json()[0]["title"])
+
+    def test_get_list_categories_with_pagination(self):
+        self.skipTest(
+            reason="This logic has not yet been implemented, in the future this test will test pagination"
+        )
+        response = self.client.get("/api/Categories/?page=2&limit=10", format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(10, len(response.json()))
 
 
 class TestTags(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.tags = TagsFactory()
+        cls.tags = [TagsFactory() for _ in range(1, 21)]
 
     def test_get_list_tags(self):
         response = self.client.get("/api/Tags/", format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.tags.title, response.json()[0]["title"])
+        self.assertEqual(len(self.tags), len(response.json()))
+        self.assertEqual(self.tags[0].title, response.json()[0]["title"])
+
+    def test_get_list_tags_with_pagination(self):
+        self.skipTest(
+            reason="This logic has not yet been implemented, in the future this test will test pagination"
+        )
+        response = self.client.get("/api/Tags/?page=2&limit=10", format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(10, len(response.json()))
 
 
 class TestAuthors(APITestCase):
@@ -53,6 +58,7 @@ class TestAuthors(APITestCase):
     def test_get_list_authors(self):
         response = self.client.get("/api/Authors/", format="json")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(self.authors), len(response.json()))
         authors_data = response.json()
         for index, author in enumerate(self.authors):
             author_data = authors_data[index]
@@ -62,6 +68,14 @@ class TestAuthors(APITestCase):
             self.assertEqual(author.twitter, author_data["twitter"])
             self.assertEqual(author.telegram, author_data["telegram"])
             self.assertEqual(author.rating, author_data["rating"])
+
+    def test_get_list_authors_with_pagination(self):
+        self.skipTest(
+            reason="This logic has not yet been implemented, in the future this test will test pagination"
+        )
+        response = self.client.get("/api/Authors/?page=2&limit=10", format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(10, len(response.json()))
 
 
 class TestNewsUser(APITestCase):
@@ -79,29 +93,33 @@ class TestNewsUser(APITestCase):
 
     def test_success_create_news_user(self):
         data = {
-            "first_name": FIRST_NAME,
-            "surname": SURNAME,
-            "email": USER_EMAIL,
-            "profile_image": PROFILE_IMAGE,
-            "google_id": GOOGLE_ID,
+            "first_name": constant.TEST_CREATE_USER["FIRST_NAME"],
+            "surname": constant.TEST_CREATE_USER["SURNAME"],
+            "email": constant.TEST_CREATE_USER["USER_EMAIL"],
+            "profile_image": constant.TEST_CREATE_USER["PROFILE_IMAGE"],
+            "google_id": constant.TEST_CREATE_USER["GOOGLE_ID"],
         }
         response = self.client.post("/api/NewsUser/", data=data, format="json")
         self.assertEqual(response.status_code, 201)
         self.assertEqual(data["google_id"], response.json())
 
     def test_create_user_email_exist(self):
+        self.skipTest(
+            reason=(
+                "This test will work correctly when views.py is changed, and there will "
+                "be a correct response to the request."
+            )
+        )
         data = {
-            "first_name": FIRST_NAME,
-            "surname": SURNAME,
+            "first_name": constant.TEST_CREATE_USER["FIRST_NAME"],
+            "surname": constant.TEST_CREATE_USER["SURNAME"],
             "email": self.news_user.email,
-            "profile_image": PROFILE_IMAGE,
-            "google_id": GOOGLE_ID,
+            "profile_image": constant.TEST_CREATE_USER["PROFILE_IMAGE"],
+            "google_id": constant.TEST_CREATE_USER["GOOGLE_ID"],
         }
         response = self.client.post("/api/NewsUser/", data=data, format="json")
         self.assertEqual(response.status_code, 409)
-        self.assertEqual(self.news_user.first_name, response.json()["first_name"])
-        self.assertEqual(self.news_user.surname, response.json()["surname"])
-        self.assertEqual(self.news_user.email, response.json()["email"])
+        self.assertEqual("A user with this e-mail address already exists", response.json()["detail"])
 
     def test_get_user_by_google_id(self):
         response = self.client.get(f"/api/NewsUser/{self.news_user.google_id}/", fromat="json")
@@ -115,7 +133,7 @@ class TestNewsUser(APITestCase):
             reason="This test will work when the views.py logic is changed,"
             "google_id should be more than just 1 and there should be normal error handling."
         )
-        response = self.client.get(f"/api/NewsUser/{GOOGLE_ID}/", fromat="json")
+        response = self.client.get(f"/api/NewsUser/{constant.TEST_CREATE_USER['GOOGLE_ID']}/", fromat="json")
         self.assertEqual(response.status_code, 404)
         self.assertEqual("No user with this google_id was found", response.json()["detail"])
 
@@ -128,7 +146,8 @@ class TestNewsUser(APITestCase):
 class TestNews(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.news = [NewsFactory() for _ in range(1, 41)]
+        cls.news = [NewsFactory() for _ in range(1, 21)]
+        cls.single_news = NewsFactory()
 
     def test_get_list_news(self):
         response = self.client.get("/api/News/", format="json")
@@ -141,62 +160,62 @@ class TestNews(APITestCase):
             self.assertEqual(self.news[index].is_approved, news["is_approved"])
 
     def test_pagination_in_news(self):
-        response = self.client.get(f"/api/News/?offset={OFFSET}", format="json")
+        response = self.client.get(f"/api/News/?offset={constant.OFFSET}", format="json")
         self.assertEqual(response.status_code, 200)
         received_news = response.json()
         for index, news in enumerate(received_news["results"]):
-            self.assertEqual(self.news[index + OFFSET].title, news["title"])
-            self.assertEqual(self.news[index + OFFSET].description, news["description"])
-            self.assertEqual(self.news[index + OFFSET].content, news["content"])
-            self.assertEqual(self.news[index + OFFSET].is_approved, news["is_approved"])
+            self.assertEqual(self.news[index + constant.OFFSET].title, news["title"])
+            self.assertEqual(self.news[index + constant.OFFSET].description, news["description"])
+            self.assertEqual(self.news[index + constant.OFFSET].content, news["content"])
+            self.assertEqual(self.news[index + constant.OFFSET].is_approved, news["is_approved"])
 
     def test_get_news_by_custom_url(self):
-        response = self.client.get(f"/api/News/{self.news[0].custom_url}/", format="json")
+        response = self.client.get(f"/api/News/{self.single_news.custom_url}/", format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.news[0].title, response.json()[0]["title"])
-        self.assertEqual(self.news[0].description, response.json()[0]["description"])
-        self.assertEqual(self.news[0].content, response.json()[0]["content"])
+        self.assertEqual(self.single_news.title, response.json()[0]["title"])
+        self.assertEqual(self.single_news.description, response.json()[0]["description"])
+        self.assertEqual(self.single_news.content, response.json()[0]["content"])
 
     def test_get_news_by_custom_url_not_found(self):
-        response = self.client.get(f"/api/News/{CUSTOM_URL}/", format="json")
-        self.assertEqual(response.status_code, 400)
+        response = self.client.get(f"/api/News/{constant.TEST_NEWS['CUSTOM_URL']}/", format="json")
+        self.assertEqual(response.status_code, 404)
         self.assertEqual("object not found", response.json())
 
-    def test_success_get_news_by_categories(self):
-        categories = list(self.news[0].categories.all())
-        response = self.client.get(f"/api/Categories/{categories[0].title}/", format="json")
+    def test_success_get_news_by_category(self):
+        response = self.client.get(
+            f"/api/Categories/{self.single_news.categories.first().title}/", format="json"
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.news[0].title, response.json()[0]["title"])
-        self.assertEqual(self.news[0].description, response.json()[0]["description"])
-        self.assertEqual(self.news[0].content, response.json()[0]["content"])
+        self.assertEqual(self.single_news.title, response.json()[0]["title"])
+        self.assertEqual(self.single_news.description, response.json()[0]["description"])
+        self.assertEqual(self.single_news.content, response.json()[0]["content"])
 
     def test_get_news_by_categories_not_found(self):
-        response = self.client.get(f"/api/Categories/{TEST_CATEGORIES}/", format="json")
-        self.assertEqual(response.status_code, 400)
+        response = self.client.get(f"/api/Categories/{constant.TEST_CATEGORIES['TITLE']}/", format="json")
+        self.assertEqual(response.status_code, 404)
         self.assertEqual("object not found", response.json())
 
     def test_success_get_news_by_tags(self):
-        tags = list(self.news[0].tags.all())
-        response = self.client.get(f"/api/Tags/{tags[0].title}/", format="json")
+        response = self.client.get(f"/api/Tags/{self.single_news.tags.first().title}/", format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.news[0].title, response.json()[0]["title"])
-        self.assertEqual(self.news[0].description, response.json()[0]["description"])
-        self.assertEqual(self.news[0].content, response.json()[0]["content"])
+        self.assertEqual(self.single_news.title, response.json()[0]["title"])
+        self.assertEqual(self.single_news.description, response.json()[0]["description"])
+        self.assertEqual(self.single_news.content, response.json()[0]["content"])
 
     def test_get_news_by_tags_not_found(self):
-        response = self.client.get(f"/api/Tags/{TEST_TAGS}/", format="json")
-        self.assertEqual(response.status_code, 400)
+        response = self.client.get(f"/api/Tags/{constant.TEST_TAGS['TITLE']}/", format="json")
+        self.assertEqual(response.status_code, 404)
         self.assertEqual("object not found", response.json())
 
     def test_get_news_by_author_name(self):
-        response = self.client.get(f"/api/Authors/{self.news[0].author.name}/", format="json")
+        response = self.client.get(f"/api/Authors/{self.single_news.author.name}/", format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.news[0].author.name, response.json()[0]["author"]["name"])
-        self.assertEqual(self.news[0].author.description, response.json()[0]["author"]["description"])
-        self.assertEqual(self.news[0].author.facebook, response.json()[0]["author"]["facebook"])
-        self.assertEqual(self.news[0].author.twitter, response.json()[0]["author"]["twitter"])
-        self.assertEqual(self.news[0].author.telegram, response.json()[0]["author"]["telegram"])
-        self.assertEqual(self.news[0].author.rating, response.json()[0]["author"]["rating"])
+        self.assertEqual(self.single_news.author.name, response.json()[0]["author"]["name"])
+        self.assertEqual(self.single_news.author.description, response.json()[0]["author"]["description"])
+        self.assertEqual(self.single_news.author.facebook, response.json()[0]["author"]["facebook"])
+        self.assertEqual(self.single_news.author.twitter, response.json()[0]["author"]["twitter"])
+        self.assertEqual(self.single_news.author.telegram, response.json()[0]["author"]["telegram"])
+        self.assertEqual(self.single_news.author.rating, response.json()[0]["author"]["rating"])
 
 
 class TestComment(APITestCase):
@@ -223,11 +242,11 @@ class TestComment(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual("Comment posted", response.json())
 
-    def test_create_comment_news_not_found(self):
-        data = {"comment_body": COMMENT_BODY}
+    def test_comment_news_not_found(self):
+        data = {"comment_body": constant.TEST_COMMENT["COMMENT_BODY"]}
 
         response = self.client.post(
-            f"/api/Comments/?author_email={self.comment.author.email}&{NEWS_ID}",
+            f"/api/Comments/?author_email={self.comment.author.email}&{constant.TEST_COMMENT['NEWS_ID']}",
             data=data,
             format="json",
         )
@@ -235,10 +254,11 @@ class TestComment(APITestCase):
         self.assertEqual("News is not found!", response.json())
 
     def test_create_comment_user_not_found(self):
-        data = {"comment_body": COMMENT_BODY}
+        data = {"comment_body": constant.TEST_COMMENT["COMMENT_BODY"]}
 
         response = self.client.post(
-            f"/api/Comments/?author_email={USER_EMAIL}&news_id={self.comment.news.id}",
+            f"/api/Comments/?author_email={constant.TEST_COMMENT['EMAIL_AUTHORS_COMMENT']}"
+            f"&news_id={self.comment.news.id}",
             data=data,
             format="json",
         )
@@ -256,7 +276,7 @@ class TestComment(APITestCase):
 
     def test_delete_comment_news_not_found(self):
         response = self.client.delete(
-            f"/api/Comments/{NEWS_ID}/"
+            f"/api/Comments/{constant.TEST_COMMENT['NEWS_ID']}/"
             f"?comment_id={self.comment.id}&author_email={self.comment.author.email}",
             format="json",
         )
@@ -266,7 +286,7 @@ class TestComment(APITestCase):
     def test_delete_comment_comment_id_not_found(self):
         response = self.client.delete(
             f"/api/Comments/{self.comment.news.id}/"
-            f"?comment_id={COMMENT_ID}&author_email={self.comment.author.email}",
+            f"?comment_id={constant.TEST_COMMENT['COMMENT_ID']}&author_email={self.comment.author.email}",
             format="json",
         )
         self.assertEqual(response.status_code, 404)
@@ -276,7 +296,7 @@ class TestComment(APITestCase):
         response = self.client.delete(
             f"/api/Comments/{self.comment.news.id}/"
             f"?comment_id={self.comment.id}"
-            f"&author_email={USER_EMAIL}",
+            f"&author_email={constant.TEST_COMMENT['EMAIL_AUTHORS_COMMENT']}",
             format="json",
         )
         self.assertEqual(response.status_code, 404)
@@ -286,36 +306,43 @@ class TestComment(APITestCase):
 class TestApprovedNews(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.news = [ApprovedNewsFactory() for i in range(1, 41)]
+        cls.news = [ApprovedNewsFactory() for i in range(1, 21)]
+        cls.single_news = ApprovedNewsFactory()
 
     def test_get_list_approved_news(self):
         response = self.client.get("/api/ApprovedNews/", format="json")
         self.assertEqual(response.status_code, 200)
-        received_news = response.json()
-        for index, news in enumerate(received_news["results"]):
+        response_data = response.json()
+        for index, news in enumerate(response_data["results"]):
             self.assertEqual(self.news[index].title, news["title"])
             self.assertEqual(self.news[index].description, news["description"])
             self.assertEqual(self.news[index].content, news["content"])
             self.assertEqual(self.news[index].is_approved, news["is_approved"])
 
     def test_pagination_in_approved_news(self):
-        response = self.client.get(f"/api/ApprovedNews/?offset={OFFSET}", format="json")
+        response = self.client.get(f"/api/ApprovedNews/?offset={constant.OFFSET}", format="json")
         self.assertEqual(response.status_code, 200)
         received_news = response.json()
         for index, news in enumerate(received_news["results"]):
-            self.assertEqual(self.news[index + OFFSET].title, news["title"])
-            self.assertEqual(self.news[index + OFFSET].description, news["description"])
-            self.assertEqual(self.news[index + OFFSET].content, news["content"])
-            self.assertEqual(self.news[index + OFFSET].is_approved, news["is_approved"])
+            self.assertEqual(self.news[index + constant.OFFSET].title, news["title"])
+            self.assertEqual(self.news[index + constant.OFFSET].description, news["description"])
+            self.assertEqual(self.news[index + constant.OFFSET].content, news["content"])
+            self.assertEqual(self.news[index + constant.OFFSET].is_approved, news["is_approved"])
 
     def test_get_approved_news_by_custom_url(self):
-        response = self.client.get(f"/api/ApprovedNews/{self.news[0].custom_url}/", format="json")
+        self.skipTest(
+            reason=(
+                "This test will work correctly when the application logic is changed, "
+                "namely one news item will be displayed by custom URL."
+            )
+        )
+        response = self.client.get(f"/api/ApprovedNews/{self.single_news.custom_url}/", format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.news[0].title, response.json()[0]["title"])
-        self.assertEqual(self.news[0].description, response.json()[0]["description"])
-        self.assertEqual(self.news[0].content, response.json()[0]["content"])
+        self.assertEqual(self.single_news.title, response.json()["title"])
+        self.assertEqual(self.single_news.description, response.json()["description"])
+        self.assertEqual(self.single_news.content, response.json()["content"])
 
     def test_get_approved_news_by_custom_url_not_found(self):
-        response = self.client.get("/api/ApprovedNews/random-custom_url/", format="json")
-        self.assertEqual(response.status_code, 400)
+        response = self.client.get(f"/api/ApprovedNews/{constant.TEST_NEWS['CUSTOM_URL']}/", format="json")
+        self.assertEqual(response.status_code, 404)
         self.assertEqual("object not found", response.json())

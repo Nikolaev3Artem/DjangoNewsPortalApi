@@ -128,7 +128,7 @@ class NewsList(viewsets.ModelViewSet):
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
             else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+                return Response(data="object not found", status=status.HTTP_404_NOT_FOUND)
 
 
 class ApprovedNewsList(viewsets.ModelViewSet):
@@ -242,7 +242,7 @@ class ApprovedNewsList(viewsets.ModelViewSet):
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
             else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+                return Response(data="object not found", status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
         responses={
@@ -468,7 +468,7 @@ class TagsList(viewsets.ModelViewSet):
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
             else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+                return Response(data="object not found", status=status.HTTP_404_NOT_FOUND)
 
 
 class CategoriesList(viewsets.ModelViewSet):
@@ -513,7 +513,7 @@ class CategoriesList(viewsets.ModelViewSet):
             if queryset.count() != 0:
                 return Response(data=serializer.data, status=200)
             else:
-                return Response(data="object not found", status=status.HTTP_400_BAD_REQUEST)
+                return Response(data="object not found", status=status.HTTP_404_NOT_FOUND)
 
 
 class AuthorList(viewsets.ModelViewSet):
